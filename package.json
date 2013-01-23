@@ -1,0 +1,21 @@
+{
+  "name": "sequel-node",
+  "version": "0.0.0",
+  "description": "Database toolkit for node.js inspired by Sequel (http://sequel.rubyforge.org/",
+  "main": "main.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "devDependencies": {
+    "mocha": "~1.7.4",
+    "chai": "~1.4.0",
+    "coffee-script": "~1.4.0"
+  },
+  "author": "Daniel Bretoi",
+  "dependencies": {
+  }
+}
