@@ -8,6 +8,10 @@ describe "Dataset", ->
 
   it "should filter", ->
     dataset = subject.ds('generic_items')
+    dataset.sql().should.equal "SELECT * FROM generic_items"
+
+  it "should query regular", ->
+    dataset = subject.ds('generic_items')
     dataset.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM generic_items WHERE title='mountain dew'"
 
   it.skip "should create table", (done) ->
