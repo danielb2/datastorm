@@ -18,9 +18,16 @@ class @dataset
     return new_obj
 
   where: (conditions) ->
-    new_obj = @clone(@)
-    new_obj.clause.where = if @clause.where then @merge(@clause.where, conditions) else conditions
+    new_where = if @clause.where then @merge(@clause.where, conditions) else conditions
+    return @clone({where: new_where})
+
+  limit: (num) ->
+    new_obj = @clone({limit: num})
     return new_obj
+
+  order: ->
+
+  group: ->
 
   sql: ->
     whereClause = []
@@ -28,6 +35,7 @@ class @dataset
       whereClause.push "#{k}='#{v}'"
     sql = "SELECT * FROM #{@tableName}"
     sql += " WHERE " + whereClause.join(' AND ') if @clause.where
+    sql += " LIMIT #{@clause.limit}" if @clause.limit
     return sql
 
 module.exports = @dataset
