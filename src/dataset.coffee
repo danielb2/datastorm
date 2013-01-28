@@ -3,6 +3,7 @@ class @dataset
     @tableName = tableName
     @clause    = {}
 
+  # @private
   merge: (obj1,obj2) ->
     obj3 = {}
     for i of obj1
@@ -11,9 +12,15 @@ class @dataset
       obj3[i] = obj2[i]
     return obj3
 
+  clone: (additions) ->
+    new_obj = @merge(@,{})
+    new_obj.clause = @merge(@clause,additions)
+    return new_obj
+
   where: (conditions) ->
-    @clause.where = if @clause.where then @merge(@clause.where, conditions) else conditions
-    @
+    new_obj = @clone(@)
+    new_obj.clause.where = if @clause.where then @merge(@clause.where, conditions) else conditions
+    return new_obj
 
   sql: ->
     whereClause = []
