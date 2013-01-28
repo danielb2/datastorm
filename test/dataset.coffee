@@ -6,13 +6,17 @@ describe "Dataset", ->
     subject = new Sequel.mysql
     done()
 
-  it "should filter", ->
+  it "should do plain query", ->
     dataset = subject.ds('generic_items')
     dataset.sql().should.equal "SELECT * FROM generic_items"
 
-  it "should query regular", ->
+  it "should do simple filter", ->
     dataset = subject.ds('generic_items')
     dataset.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM generic_items WHERE title='mountain dew'"
+
+  it "should filter multiple items", ->
+    dataset = subject.ds('generic_items')
+    dataset.where({title: 'mountain dew', id: 123}).sql().should.equal "SELECT * FROM generic_items WHERE title='mountain dew' AND id='123'"
 
   it.skip "should create table", (done) ->
     subject.create_table 'generic_items', (handle) ->

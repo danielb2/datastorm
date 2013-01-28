@@ -12,7 +12,7 @@ class @dataset
     for k, v of @clause.where
       whereClause.push "#{k}='#{v}'"
     sql = "SELECT * FROM #{@tableName}"
-    sql += " WHERE " + whereClause.join('AND') if @clause.where
+    sql += " WHERE " + whereClause.join(' AND ') if @clause.where
     return sql
 
 module.exports = @dataset
