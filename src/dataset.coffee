@@ -28,7 +28,8 @@ class @dataset
   order: (order) ->
     return @clone({order: order})
 
-  group: ->
+  group: (group) ->
+    return @clone({group: group})
 
   sql: ->
     whereClause = []
@@ -37,6 +38,7 @@ class @dataset
     sql = "SELECT * FROM #{@tableName}"
     sql += " WHERE " + whereClause.join(' AND ') if @clause.where
     sql += " ORDER BY #{@clause.order}" if @clause.order
+    sql += " GROUP BY #{@clause.group}" if @clause.group
     sql += " LIMIT #{@clause.limit}" if @clause.limit
     return sql
 
