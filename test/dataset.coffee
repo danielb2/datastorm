@@ -14,6 +14,10 @@ describe "Dataset", ->
     dataset = subject.ds('generic_items')
     dataset.limit(3).sql().should.equal "SELECT * FROM generic_items LIMIT 3"
 
+  it "should order", ->
+    dataset = subject.ds('generic_items')
+    dataset.order('id asc').sql().should.equal "SELECT * FROM generic_items ORDER BY id asc"
+
   it "should do simple filter", ->
     dataset = subject.ds('generic_items')
     dataset.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM generic_items WHERE title='mountain dew'"

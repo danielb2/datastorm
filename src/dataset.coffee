@@ -25,7 +25,8 @@ class @dataset
     new_obj = @clone({limit: num})
     return new_obj
 
-  order: ->
+  order: (order) ->
+    return @clone({order: order})
 
   group: ->
 
@@ -35,6 +36,7 @@ class @dataset
       whereClause.push "#{k}='#{v}'"
     sql = "SELECT * FROM #{@tableName}"
     sql += " WHERE " + whereClause.join(' AND ') if @clause.where
+    sql += " ORDER BY #{@clause.order}" if @clause.order
     sql += " LIMIT #{@clause.limit}" if @clause.limit
     return sql
 
