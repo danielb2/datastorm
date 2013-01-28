@@ -3,8 +3,16 @@ class @dataset
     @tableName = tableName
     @clause    = {}
 
+  merge: (obj1,obj2) ->
+    obj3 = {}
+    for i of obj1
+      obj3[i] = obj1[i]
+    for i of obj2
+      obj3[i] = obj2[i]
+    return obj3
+
   where: (conditions) ->
-    @clause.where = conditions
+    @clause.where = if @clause.where then @merge(@clause.where, conditions) else conditions
     @
 
   sql: ->

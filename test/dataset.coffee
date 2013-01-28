@@ -18,6 +18,10 @@ describe "Dataset", ->
     dataset = subject.ds('generic_items')
     dataset.where({title: 'mountain dew', id: 123}).sql().should.equal "SELECT * FROM generic_items WHERE title='mountain dew' AND id='123'"
 
+  it "be chainable", ->
+    dataset = subject.ds('generic_items')
+    dataset.where({title: 'mountain dew'}).where({id: 123}).sql().should.equal "SELECT * FROM generic_items WHERE title='mountain dew' AND id='123'"
+
   it.skip "should create table", (done) ->
     subject.create_table 'generic_items', (handle) ->
       handle.add 'primary_key', 'id'
