@@ -18,7 +18,8 @@ describe "Mysql", ->
       done()
 
   it "should the first record as a model", (done) ->
-    List.first (err, row) ->
-      row.id.should.equal 51
-      row.name.should.equal 'a list'
+    List.first (err, list) ->
+      list.table_name().should.equal 'lists'
+      list.id.should.equal 51
+      list.name.should.equal 'a list'
       done()

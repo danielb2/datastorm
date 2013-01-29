@@ -1,10 +1,14 @@
 
 lingo = require 'lingo'
 class @Model
-  constructor: (attributes) ->
+  constructor: (klass, attributes) ->
+    @klass      = klass
     @attributes = attributes
     for name, value of attributes
       @[name] = value
+
+  table_name: ->
+    @klass.table_name()
 
   @table_name: ->
     lingo.en.pluralize @name.toLowerCase()
@@ -22,6 +26,6 @@ class @Model
   @first: (cb) ->
     dataset = @db.ds @table_name()
     dataset.first (err, result) =>
-      cb err, new @(result)
+      cb err, new @(@,result)
 
 module.exports = @Model
