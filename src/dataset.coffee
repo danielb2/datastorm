@@ -37,9 +37,19 @@ class @dataset
   group: (group) ->
     return @clone({group: group})
 
+  join: (table_name, conditions) ->
+    return @clone({join: {table_name: table_name, conditions: conditions}})
+
   first: (cb) ->
     @connection.query @limit(1).sql(), (err, result) ->
       cb err, result[0]
+
+  # @private
+  _build_join: ->
+    for k, v of @clause.join.conditions
+      key = "#{@clause.join.table_name}.#{k}"
+      value = "#{@tableName}.#{v}"
+      return "INNER JOIN #{@clause.join.table_name} ON #{key}=#{value}"
 
   sql: ->
     whereClause = []
@@ -52,7 +62,10 @@ class @dataset
     if @clause.where_strings
       for k in @clause.where_strings
         whereClause.push k
+    if @clause.join
+      @_build_join()
     sql = "SELECT * FROM #{@tableName}"
+    sql += " " + @_build_join() if @clause.join
     sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
     sql += " ORDER BY #{@clause.order}" if @clause.order
     sql += " GROUP BY #{@clause.group}" if @clause.group
