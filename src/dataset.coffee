@@ -18,8 +18,12 @@ class @dataset
     return new_obj
 
   where: (conditions) ->
-    new_where = if @clause.where then @merge(@clause.where, conditions) else conditions
-    return @clone({where: new_where})
+    if toString.call(conditions) == '[object String]'
+      new_where = if @clause.where_strings then @clause.where_strings.push(conditions); @clause.where_strings else [conditions]
+      return @clone({where_strings: new_where})
+    else
+      new_where = if @clause.where then @merge(@clause.where, conditions) else conditions
+      return @clone({where: new_where})
 
   limit: (num) ->
     new_obj = @clone({limit: num})
@@ -39,8 +43,11 @@ class @dataset
         whereClause.push "#{k} IN(#{out})"
       else
         whereClause.push "#{k}='#{v}'"
+    if @clause.where_strings
+      for k in @clause.where_strings
+        whereClause.push k
     sql = "SELECT * FROM #{@tableName}"
-    sql += " WHERE " + whereClause.join(' AND ') if @clause.where
+    sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
     sql += " ORDER BY #{@clause.order}" if @clause.order
     sql += " GROUP BY #{@clause.group}" if @clause.group
     sql += " LIMIT #{@clause.limit}" if @clause.limit

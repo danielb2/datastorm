@@ -47,6 +47,14 @@ describe "Dataset", ->
     dataset = subject.ds('generic_items')
     dataset.where({name: ['one','two']}).sql().should.equal "SELECT * FROM generic_items WHERE name IN('one','two')"
 
+  it "should be able to define our own WHERE", ->
+    dataset = subject.ds('generic_items')
+    dataset.where("created_at='whatever'").sql().should.equal "SELECT * FROM generic_items WHERE created_at='whatever'"
+
+  it "should be able to define our own WHERE with chains", ->
+    dataset = subject.ds('generic_items')
+    dataset.where({title: 'mountain dew'}).where("created_at='whatever'").sql().should.equal "SELECT * FROM generic_items WHERE title='mountain dew' AND created_at='whatever'"
+
   it.skip "should create table", (done) ->
     subject.create_table 'generic_items', (handle) ->
       handle.add 'primary_key', 'id'
