@@ -17,4 +17,8 @@ class @Model
   @find: (id, cb) ->
     @find_query(id).first(cb)
 
+  @first: (cb) ->
+    dataset = @db.ds @table_name()
+    dataset.first cb
+
 module.exports = @Model
