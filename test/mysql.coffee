@@ -3,7 +3,7 @@ require "./_helper"
 
 DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
 
-describe "Model", ->
+describe "Mysql", ->
   db = null
   beforeEach (done) ->
     done()
