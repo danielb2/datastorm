@@ -34,7 +34,10 @@ class @dataset
   sql: ->
     whereClause = []
     for k, v of @clause.where
-      whereClause.push "#{k}='#{v}'"
+      if toString.call(v) == '[object Array]'
+        whereClause.push "#{k} IN(#{v.join(',')})"
+      else
+        whereClause.push "#{k}='#{v}'"
     sql = "SELECT * FROM #{@tableName}"
     sql += " WHERE " + whereClause.join(' AND ') if @clause.where
     sql += " ORDER BY #{@clause.order}" if @clause.order

@@ -39,6 +39,10 @@ describe "Dataset", ->
     dataset.where({id: 123})
     dataset.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM generic_items WHERE title='mountain dew'"
 
+  it "should use in for where array", ->
+    dataset = subject.ds('generic_items')
+    dataset.where({id: [1,2,3]}).sql().should.equal "SELECT * FROM generic_items WHERE id IN(1,2,3)"
+
   it.skip "should create table", (done) ->
     subject.create_table 'generic_items', (handle) ->
       handle.add 'primary_key', 'id'
