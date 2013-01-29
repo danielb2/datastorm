@@ -10,7 +10,7 @@ describe "Model", ->
   beforeEach (done) ->
     done()
 
-  it "should allow to define a model", ->
+  it "should get the correct table name", ->
     List.table_name().should.equal 'lists'
 
   it "should find a record", ->

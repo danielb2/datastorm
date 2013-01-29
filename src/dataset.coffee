@@ -1,7 +1,8 @@
 class @dataset
-  constructor: (tableName) ->
-    @tableName = tableName
-    @clause    = {}
+  constructor: (connection, tableName) ->
+    @connection = connection
+    @tableName  = tableName
+    @clause     = {}
 
   # @private
   merge: (obj1,obj2) ->
@@ -34,6 +35,13 @@ class @dataset
 
   group: (group) ->
     return @clone({group: group})
+
+  # @private
+  _get: (err, cb) ->
+
+  first: (cb) ->
+    @connection.query @limit(1).sql(), (err, result) ->
+      cb err, result[0]
 
   sql: ->
     whereClause = []

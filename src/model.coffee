@@ -14,4 +14,7 @@ class @Model
   @find_sql: (id) ->
     @find_query(id).sql()
 
+  @find: (id, cb) ->
+    @find_query(id).first(cb)
+
 module.exports = @Model
