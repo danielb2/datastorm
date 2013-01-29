@@ -35,7 +35,8 @@ class @dataset
     whereClause = []
     for k, v of @clause.where
       if toString.call(v) == '[object Array]'
-        whereClause.push "#{k} IN(#{v.join(',')})"
+        out = JSON.stringify(v).replace(/"/g,'\'','gi').replace(/[\[\]]/g,'')
+        whereClause.push "#{k} IN(#{out})"
       else
         whereClause.push "#{k}='#{v}'"
     sql = "SELECT * FROM #{@tableName}"

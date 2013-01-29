@@ -43,6 +43,10 @@ describe "Dataset", ->
     dataset = subject.ds('generic_items')
     dataset.where({id: [1,2,3]}).sql().should.equal "SELECT * FROM generic_items WHERE id IN(1,2,3)"
 
+  it "should use in for where string array", ->
+    dataset = subject.ds('generic_items')
+    dataset.where({name: ['one','two']}).sql().should.equal "SELECT * FROM generic_items WHERE name IN('one','two')"
+
   it.skip "should create table", (done) ->
     subject.create_table 'generic_items', (handle) ->
       handle.add 'primary_key', 'id'
