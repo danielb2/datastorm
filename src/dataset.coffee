@@ -13,6 +13,7 @@ class @dataset
       obj3[i] = obj2[i]
     return obj3
 
+  # @private
   clone: (additions) ->
     new_obj = @merge(@,{})
     new_obj.clause = @merge(@clause,additions)
@@ -35,9 +36,6 @@ class @dataset
 
   group: (group) ->
     return @clone({group: group})
-
-  # @private
-  _get: (err, cb) ->
 
   first: (cb) ->
     @connection.query @limit(1).sql(), (err, result) ->
