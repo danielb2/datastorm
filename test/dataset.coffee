@@ -77,21 +77,3 @@ describe "Dataset", ->
     dataset.each (record) ->
       console.log record
 
-
-
-describe "Models", ->
-  db = null
-  beforeEach (done) ->
-    db = new Sequel.mock
-    done()
-
-
-  it.skip "should allow to define a model", ->
-    School = Sequel.Model.extend (_super) ->
-      @hasMany 'lists'
-      @validates "name", format: { with: /\A[a-zA-Z]+\z/, message: "Only letters allowed" }
-
-
-class Blah
-
-class Foo extends Blah

@@ -17,5 +17,6 @@
   },
   "author": "Daniel Bretoi",
   "dependencies": {
+    "lingo": "0.0.5"
   }
 }
