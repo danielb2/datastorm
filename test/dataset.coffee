@@ -3,7 +3,7 @@ require "./_helper"
 describe "Dataset", ->
   db = null
   beforeEach (done) ->
-    db = new Sequel.mysql
+    db = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'classrooms_development'}
     done()
 
   it "should do plain query", ->
