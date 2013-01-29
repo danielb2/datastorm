@@ -7,8 +7,11 @@ class @Model
   @table_name: ->
     lingo.en.pluralize @name.toLowerCase()
 
-  @find_sql: (id) ->
+  @find_query: (id) ->
     dataset = @db.ds @table_name()
-    dataset.where(id: id).sql()
+    dataset.where(id: id)
+
+  @find_sql: (id) ->
+    @find_query(id).sql()
 
 module.exports = @Model
