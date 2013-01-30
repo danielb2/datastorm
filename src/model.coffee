@@ -11,6 +11,7 @@ class @Model
   row_func: (result) ->
     new @constructor result
 
+  # @private
   set_relations: ->
     for relation in @constructor.relations.has_many
       dataset = relation.dataset()
