@@ -1,6 +1,7 @@
 Sequel = {
   mysql: require './mysql'
   Model: require './model'
+  models: {}
   dataset: require './dataset'
 }
 
