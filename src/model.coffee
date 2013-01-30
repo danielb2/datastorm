@@ -8,17 +8,18 @@ class @Model
     for name, value of attributes
       @[name] = value
 
+  row_func: (result) ->
+    new @constructor result
+
   set_relations: ->
-    return
     for relation in @constructor.relations.has_many
       dataset = relation.dataset()
       relation_name = relation.table_name()
       conditions = {}
       # items.list_id=lists.id
       conditions['id'] = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
-      handle =  dataset.join(@constructor.table_name(), conditions).select(relation_name + ".*")
-      @[relation_name] = ->
-        handle
+      @[relation_name] = dataset.join(@constructor.table_name(), conditions).
+        select(relation_name + ".*")
 
   @join: (table, conditions) ->
     @clone(@dataset().join(table, conditions))
@@ -54,8 +55,7 @@ class @Model
     lingo.en.pluralize @name.toLowerCase()
 
   @find_query: (id) ->
-    dataset = @db.ds @table_name()
-    dataset.where(id: id)
+    @dataset().where(id: id)
 
   @find_sql: (id) ->
     @find_query(id).sql()
@@ -64,11 +64,12 @@ class @Model
     @find_query(id).first(cb)
 
   @dataset: ->
-    @db.ds @table_name()
+    dataset = @db.ds @table_name()
+    dataset.set_row_func (result) =>
+      new @ result
+    return dataset
 
   @first: (cb) ->
-    dataset = @db.ds @table_name()
-    dataset.first (err, result) =>
-      cb err, new @(result)
+    @dataset().first cb
 
 module.exports = @Model

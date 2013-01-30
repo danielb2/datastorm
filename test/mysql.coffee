@@ -39,10 +39,11 @@ describe "Mysql", ->
       row.table_name().should.equal 'lists'
       done()
 
-  it.skip "should link to records through model", (done) ->
+  it "should link to records through model", (done) ->
     Sequel.models.List.first (err, list) ->
-      list.items().first (err, item) ->
+      list.items.first (err, item) ->
         item.name.should.equal 'an item'
+        item.constructor.name.should.equal 'Item'
         item.id.should.equal 42
         item.table_name().should.equal 'items'
         done()
