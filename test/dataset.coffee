@@ -60,6 +60,9 @@ describe "Dataset", ->
     dataset.join('order_items', {item_id: 'id'}).where({order_id: 1234}).sql().should.
       equal "SELECT * FROM items INNER JOIN order_items ON order_items.item_id=items.id WHERE order_id='1234'"
 
+  it "should allow to modify select", ->
+    dataset = db.ds('posts')
+    dataset.select('stamp', 'name').sql().should.equal "SELECT stamp, name FROM posts"
 
   it.skip "should create table", (done) ->
     db.create_table 'generic_items', (handle) ->

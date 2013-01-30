@@ -44,6 +44,10 @@ class @dataset
     @connection.query @limit(1).sql(), (err, result) ->
       cb err, result[0]
 
+  select: (fields...) ->
+    return @clone({select: fields})
+
+
   # @private
   _build_join: ->
     for k, v of @clause.join.conditions
@@ -64,7 +68,9 @@ class @dataset
         whereClause.push k
     if @clause.join
       @_build_join()
-    sql = "SELECT * FROM #{@tableName}"
+    sql = "SELECT "
+    sql += if @clause.select then @clause.select.join(', ') else '*'
+    sql += " FROM #{@tableName}"
     sql += " " + @_build_join() if @clause.join
     sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
     sql += " ORDER BY #{@clause.order}" if @clause.order
