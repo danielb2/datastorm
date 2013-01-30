@@ -16,7 +16,6 @@ class @Model
       dataset = relation.dataset()
       relation_name = relation.table_name()
       conditions = {}
-      # items.list_id=lists.id
       conditions['id'] = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
       @[relation_name] = dataset.join(@constructor.table_name(), conditions).
         select(relation_name + ".*")
