@@ -51,6 +51,9 @@ class @Model
     model = Sequel.models[model_name]
     if @relations.one_to_many then @relations.one_to_many.push model else @relations.one_to_many = [model]
 
+  # alias for one_to_many
+  @has_many = @one_to_many
+
   @table_name: ->
     lingo.en.pluralize @name.toLowerCase()
 
