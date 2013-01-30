@@ -10,6 +10,7 @@ class @Model
       @[name] = value
 
   set_relations: ->
+    return
     for relation in @klass.relations.has_many
       dataset = relation.dataset()
       relation_name = relation.table_name()

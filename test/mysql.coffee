@@ -33,14 +33,10 @@ describe "Mysql", ->
     ds = DB.ds('lists')
     rows = []
     ds.set_row_func (result) ->
-      rows.push result
-      return result
+      return new Sequel.models.List Sequel.models.List, result
 
     ds.first (err, row) ->
-      row.id.should.equal 51
-      row.name.should.equal 'a list'
-      rows[0].id.should.equal 51
-      rows[0].name.should.equal 'a list'
+      row.table_name().should.equal 'lists'
       done()
 
   it.skip "should link to records through model", (done) ->
