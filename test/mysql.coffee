@@ -33,7 +33,7 @@ describe "Mysql", ->
     ds = DB.ds('lists')
     rows = []
     ds.set_row_func (result) ->
-      return new Sequel.models.List Sequel.models.List, result
+      return new Sequel.models.List result
 
     ds.first (err, row) ->
       row.table_name().should.equal 'lists'

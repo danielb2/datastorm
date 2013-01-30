@@ -2,8 +2,7 @@ lingo = require 'lingo'
 class @Model
   @relations  = {}
   @opts    = null
-  constructor: (klass, attributes) ->
-    @klass      = klass
+  constructor: (attributes) ->
     @attributes = attributes
     @set_relations()
     for name, value of attributes
@@ -11,13 +10,13 @@ class @Model
 
   set_relations: ->
     return
-    for relation in @klass.relations.has_many
+    for relation in @constructor.relations.has_many
       dataset = relation.dataset()
       relation_name = relation.table_name()
       conditions = {}
       # items.list_id=lists.id
-      conditions['id'] = lingo.en.singularize(@klass.name).toLowerCase() + "_id"
-      handle =  dataset.join(@klass.table_name(), conditions).select(relation_name + ".*")
+      conditions['id'] = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
+      handle =  dataset.join(@constructor.table_name(), conditions).select(relation_name + ".*")
       @[relation_name] = ->
         handle
 
@@ -44,7 +43,7 @@ class @Model
 
 
   table_name: ->
-    @klass.table_name()
+    @constructor.table_name()
 
   @has_many: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
@@ -70,6 +69,6 @@ class @Model
   @first: (cb) ->
     dataset = @db.ds @table_name()
     dataset.first (err, result) =>
-      cb err, new @(@,result)
+      cb err, new @(result)
 
 module.exports = @Model
