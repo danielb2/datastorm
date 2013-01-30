@@ -8,7 +8,7 @@ class Sequel.models.Item extends Sequel.Model
 
 class Sequel.models.List extends Sequel.Model
   @db = DB
-  @has_many 'items'
+  @one_to_many 'items'
 
 describe "Mysql", ->
   db = null

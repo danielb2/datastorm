@@ -13,7 +13,7 @@ class @Model
 
   # @private
   set_relations: ->
-    for relation in @constructor.relations.has_many
+    for relation in @constructor.relations.one_to_many
       dataset = relation.dataset()
       relation_name = relation.table_name()
       conditions = {}
@@ -46,10 +46,10 @@ class @Model
   table_name: ->
     @constructor.table_name()
 
-  @has_many: (relation) ->
+  @one_to_many: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
     model = Sequel.models[model_name]
-    if @relations.has_many then @relations.has_many.push model else @relations.has_many = [model]
+    if @relations.one_to_many then @relations.one_to_many.push model else @relations.one_to_many = [model]
 
   @table_name: ->
     lingo.en.pluralize @name.toLowerCase()
