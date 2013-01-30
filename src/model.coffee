@@ -1,6 +1,7 @@
 lingo = require 'lingo'
 class @Model
   @relations  = {}
+  @opts    = null
   constructor: (klass, attributes) ->
     @klass      = klass
     @attributes = attributes
@@ -15,9 +16,31 @@ class @Model
       conditions = {}
       # items.list_id=lists.id
       conditions['id'] = lingo.en.singularize(@klass.name).toLowerCase() + "_id"
-      handle =  dataset.join(@klass.table_name(), conditions)
+      handle =  dataset.join(@klass.table_name(), conditions).select(relation_name + ".*")
       @[relation_name] = ->
         handle
+
+  @join: (table, conditions) ->
+    @clone(@dataset().join(table, conditions))
+
+  # @private
+  @merge: (obj1,obj2) ->
+    obj3 = {}
+    for i of obj1
+      obj3[i] = obj1[i]
+    for i of obj2
+      obj3[i] = obj2[i]
+    return obj3
+
+  # @private
+  @clone: (dataset) ->
+    if @dataset
+      new_obj = @merge(@,{})
+      new_obj.dataset = dataset
+    else
+      new_obj.dataset = @db.ds @table_name()
+    return new_obj
+
 
   table_name: ->
     @klass.table_name()

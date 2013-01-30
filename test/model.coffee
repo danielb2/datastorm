@@ -15,3 +15,6 @@ describe "Model", ->
 
   it "should find a record", ->
     List.find_sql(123).should.equal "SELECT * FROM lists WHERE id='123'"
+
+  it.skip "should do a join", ->
+    List.join('items').should.equal "SELECT * FROM lists WHERE id='123'"

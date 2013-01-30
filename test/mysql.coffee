@@ -29,9 +29,23 @@ describe "Mysql", ->
       list.name.should.equal 'a list'
       done()
 
+  it "should fire the row_proc method for each record", (done) ->
+    ds = DB.ds('lists')
+    rows = []
+    ds.set_row_func (result) ->
+      rows.push result
+      return result
+
+    ds.first (err, row) ->
+      row.id.should.equal 51
+      row.name.should.equal 'a list'
+      rows[0].id.should.equal 51
+      rows[0].name.should.equal 'a list'
+      done()
+
   it.skip "should link to records through model", (done) ->
     Sequel.models.List.first (err, list) ->
-      list.items.first (err, item) ->
+      list.items().first (err, item) ->
         item.name.should.equal 'an item'
         item.id.should.equal 42
         item.table_name().should.equal 'items'

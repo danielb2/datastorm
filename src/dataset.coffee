@@ -19,6 +19,16 @@ class @dataset
     new_obj.clause = @merge(@clause,additions)
     return new_obj
 
+  # @private
+  # @param func [Function] - This function is called for each row returned from the call to the database
+  set_row_func: (func) ->
+    @row_func   = func
+
+  # default function to call for each row in the database
+  row_func: (row) ->
+    return row
+
+
   where: (conditions) ->
     if toString.call(conditions) == '[object String]'
       new_where = if @clause.where_strings then @clause.where_strings.push(conditions); @clause.where_strings else [conditions]
@@ -40,9 +50,13 @@ class @dataset
   join: (table_name, conditions) ->
     return @clone({join: {table_name: table_name, conditions: conditions}})
 
+  all: (cb) ->
+    @connection.query @sql(), (err, result) =>
+      cb err, (@row_func res for res in result)
+
   first: (cb) ->
-    @connection.query @limit(1).sql(), (err, result) ->
-      cb err, result[0]
+    @connection.query @limit(1).sql(), (err, result) =>
+      cb err, (@row_func res for res in result)[0]
 
   select: (fields...) ->
     return @clone({select: fields})
