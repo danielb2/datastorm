@@ -18,10 +18,14 @@ class @Model
       model_name    = @_to_model_name(association)
       @[function_name] = =>
         model = Sequel.models[model_name]
-        conditions = {}
-        # select items.* from items inner join lists on lists.id=items.list_id;
-        conditions['id'] = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
-        dataset = model.dataset().join(@constructor.table_name(), conditions).select(function_name + ".*")
+        join = {}
+        join['id'] = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
+        where = {}
+        where[@constructor.table_name() + '.id'] = @id
+        dataset = model.dataset().
+          join(@constructor.table_name(), join).
+          select(function_name + ".*").
+          where(where)
         dataset
 
   # @private
@@ -31,9 +35,12 @@ class @Model
       function_name = model_name.toLowerCase()
       @[function_name] = (cb) ->
         model = Sequel.models[model_name]
-        conditions = {}
-        conditions[function_name + '_id'] = 'id'
-        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), conditions)
+        join = {}
+        join[function_name + '_id'] = 'id'
+        where = {}
+        where[@constructor.table_name() + '.id'] = @id
+        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
+          where(where)
         dataset.first cb
 
   # @private
