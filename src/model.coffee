@@ -58,52 +58,36 @@ class @Model
   _to_table_name: (name) ->
     lingo.en.pluralize(name).toLowerCase()
 
-  @join: (join_table, conditions) ->
-    dataset = null
+  # @private
+  # create or use existing dataset
+  @_dataset: ->
     if @opts['dataset']
-      dataset = @opts['dataset'].join(join_table,conditions)
+      @opts['dataset']
     else
-      dataset = @dataset().join(join_table,conditions)
+      @dataset()
+
+  @join: (join_table, conditions) ->
+    dataset = @_dataset().join(join_table,conditions)
     @clone({dataset: dataset})
 
   @select: (fields...) ->
-    dataset = null
-    if @opts['dataset']
-      dataset = @opts['dataset'].select(fields)
-    else
-      dataset = @dataset().select(fields)
+    dataset = @_dataset().select(fields)
     @clone({dataset: dataset})
 
   @where: (conditions) ->
-    dataset = null
-    if @opts['dataset']
-      dataset = @opts['dataset'].where(conditions)
-    else
-      dataset = @dataset().where(conditions)
+    dataset = @_dataset().where(conditions)
     @clone({dataset: dataset})
 
   @order: (order) ->
-    dataset = null
-    if @opts['dataset']
-      dataset = @opts['dataset'].order(order)
-    else
-      dataset = @dataset().order(order)
+    dataset = @_dataset().order(order)
     @clone({dataset: dataset})
 
   @group: (group) ->
-    dataset = null
-    if @opts['dataset']
-      dataset = @opts['dataset'].group(group)
-    else
-      dataset = @dataset().group(group)
+    dataset = @_dataset().group(group)
     @clone({dataset: dataset})
 
   @limit: (limit) ->
-    dataset = null
-    if @opts['dataset']
-      dataset = @opts['dataset'].limit(limit)
-    else
-      dataset = @dataset().limit(limit)
+    dataset = @_dataset().limit(limit)
     @clone({dataset: dataset})
 
   @sql: ->
@@ -148,7 +132,7 @@ class @Model
     lingo.en.pluralize @name.toLowerCase()
 
   @find_query: (id) ->
-    @dataset().where(id: id)
+    @_dataset().where(id: id)
 
   @find_sql: (id) ->
     @find_query(id).sql()
