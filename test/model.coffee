@@ -34,3 +34,10 @@ describe "Model", ->
 
   it "should select specific fields", ->
     List.select('name', 'flower').sql().should.equal "SELECT name,flower FROM `lists`"
+
+  it "be chainable", ->
+    List.where({title: 'mountain dew'}).where({id: 123}).sql().should.equal "SELECT * FROM `lists` WHERE title='mountain dew' AND id='123'"
+
+  it "be stateless chainable", ->
+    List.where({id: 123})
+    List.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM `lists` WHERE title='mountain dew'"
