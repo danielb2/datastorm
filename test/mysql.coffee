@@ -3,13 +3,14 @@ require "./_helper"
 
 DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
 
+class Sequel.models.List extends Sequel.Model
+  @db = DB
+  @one_to_many 'items'
+
 class Sequel.models.Item extends Sequel.Model
   @db = DB
   @many_to_one 'list'
 
-class Sequel.models.List extends Sequel.Model
-  @db = DB
-  @one_to_many 'items'
 
 describe "Mysql", ->
   db = null
@@ -42,7 +43,7 @@ describe "Mysql", ->
 
   it "should link to first record through one_to_many relationship", (done) ->
     Sequel.models.List.first (err, list) ->
-      list.items.first (err, item) ->
+      list.items().first (err, item) ->
         item.name.should.equal 'an item'
         item.constructor.name.should.equal 'Item'
         item.id.should.equal 42
@@ -51,7 +52,7 @@ describe "Mysql", ->
 
   it "should link to records through one_to_many relationship", (done) ->
     Sequel.models.List.first (err, list) ->
-      list.items.all (err, items) ->
+      list.items().all (err, items) ->
         item = items[0]
         item.name.should.equal 'an item'
         item.constructor.name.should.equal 'Item'
