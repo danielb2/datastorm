@@ -3,6 +3,7 @@ Sequel = {
   Model: require './model'
   models: {}
   dataset: require './dataset'
+  VERSION: require './version'
 }
 
 
