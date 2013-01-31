@@ -14,18 +14,18 @@ describe "Model", ->
     List.table_name().should.equal 'lists'
 
   it "should find a record", ->
-    List.find_sql(123).should.equal "SELECT * FROM lists WHERE id='123'"
+    List.find_sql(123).should.equal "SELECT * FROM `lists` WHERE id='123'"
 
   it "should do a join", ->
-    List.join('items', {list_id: 'id'}).sql().should.equal "SELECT * FROM lists INNER JOIN items ON items.list_id=lists.id"
-    List.join('items').sql().should.equal "SELECT * FROM lists INNER JOIN items"
+    List.join('items', {list_id: 'id'}).sql().should.equal "SELECT * FROM `lists` INNER JOIN `items` ON items.list_id=lists.id"
+    List.join('items').sql().should.equal "SELECT * FROM `lists` INNER JOIN `items`"
 
   it "should do a where", ->
-    List.where(tv_show: 'Breaking Bad').sql().should.equal "SELECT * FROM lists WHERE tv_show='Breaking Bad'"
+    List.where(tv_show: 'Breaking Bad').sql().should.equal "SELECT * FROM `lists` WHERE tv_show='Breaking Bad'"
 
   it "should order", ->
-    List.order('name desc').sql().should.equal "SELECT * FROM lists ORDER BY name desc"
+    List.order('name desc').sql().should.equal "SELECT * FROM `lists` ORDER BY name desc"
 
   it "should limit", ->
-    List.limit(5).sql().should.equal "SELECT * FROM lists LIMIT 5"
+    List.limit(5).sql().should.equal "SELECT * FROM `lists` LIMIT 5"
 

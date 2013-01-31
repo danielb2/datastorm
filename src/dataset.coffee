@@ -64,7 +64,7 @@ class @dataset
 
   # @private
   _build_join: ->
-    join_query = "INNER JOIN #{@clause.join.table_name}"
+    join_query = "INNER JOIN `#{@clause.join.table_name}`"
     if @clause.join.conditions
       for k, v of @clause.join.conditions
         key = "#{@clause.join.table_name}.#{k}"
@@ -88,7 +88,7 @@ class @dataset
       @_build_join()
     sql = "SELECT "
     sql += if @clause.select then @clause.select.join(', ') else '*'
-    sql += " FROM #{@tableName}"
+    sql += " FROM `#{@tableName}`"
     sql += " " + @_build_join() if @clause.join
     sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
     sql += " ORDER BY #{@clause.order}" if @clause.order
