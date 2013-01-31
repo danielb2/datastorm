@@ -88,6 +88,7 @@ class @dataset
       @_build_join()
     sql = "SELECT "
     sql += if @clause.select then @clause.select.join(', ') else '*'
+    # sql += if @clause.select then ("`#{x}`" for x in @clause.select).join(', ') else '*'
     sql += " FROM `#{@tableName}`"
     sql += " " + @_build_join() if @clause.join
     sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0

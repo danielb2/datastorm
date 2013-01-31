@@ -66,6 +66,14 @@ class @Model
       dataset = @dataset().join(join_table,conditions)
     @clone({dataset: dataset})
 
+  @select: (fields...) ->
+    dataset = null
+    if @opts['dataset']
+      dataset = @opts['dataset'].select(fields)
+    else
+      dataset = @dataset().select(fields)
+    @clone({dataset: dataset})
+
   @where: (conditions) ->
     dataset = null
     if @opts['dataset']
