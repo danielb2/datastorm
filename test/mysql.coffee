@@ -5,6 +5,7 @@ DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', databa
 
 class Sequel.models.Item extends Sequel.Model
   @db = DB
+  @many_to_one 'list'
 
 class Sequel.models.List extends Sequel.Model
   @db = DB
@@ -39,7 +40,7 @@ describe "Mysql", ->
       row.table_name().should.equal 'lists'
       done()
 
-  it "should link to first record through model", (done) ->
+  it "should link to first record through one_to_many relationship", (done) ->
     Sequel.models.List.first (err, list) ->
       list.items.first (err, item) ->
         item.name.should.equal 'an item'
@@ -48,7 +49,7 @@ describe "Mysql", ->
         item.table_name().should.equal 'items'
         done()
 
-  it "should link to records through model", (done) ->
+  it "should link to records through one_to_many relationship", (done) ->
     Sequel.models.List.first (err, list) ->
       list.items.all (err, items) ->
         item = items[0]
@@ -56,4 +57,14 @@ describe "Mysql", ->
         item.constructor.name.should.equal 'Item'
         item.id.should.equal 42
         item.table_name().should.equal 'items'
+        done()
+
+  it "should link to records through many_to_one relationship", (done) ->
+    Sequel.models.Item.find 42,  (err, item) ->
+      item.name.should.equal 'an item'
+      item.constructor.name.should.equal 'Item'
+      item.list (err, list) ->
+        list.constructor.name.should.equal 'List'
+        list.id.should.equal 51
+        list.name.should.equal 'a list'
         done()

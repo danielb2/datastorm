@@ -21,6 +21,25 @@ class @Model
       @[relation_name] = dataset.join(@constructor.table_name(), conditions).
         select(relation_name + ".*")
 
+    # console.log @constructor.relations
+    for relation in @constructor.relations.many_to_one
+      model_name = @_to_model_name(relation)
+      function_name = model_name.toLowerCase()
+      @[function_name] = (cb) ->
+        model = Sequel.models[model_name]
+        conditions = {}
+        conditions[function_name + '_id'] = 'id'
+        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), conditions)
+        dataset.first cb
+
+  # @private
+  _to_model_name: (name) ->
+    lingo.capitalize(lingo.en.singularize(name))
+
+  # @private
+  _to_table_name: (name) ->
+    lingo.en.pluralize(name).toLowerCase()
+
   @join: (table, conditions) ->
     @clone(@dataset().join(table, conditions))
 
@@ -46,13 +65,27 @@ class @Model
   table_name: ->
     @constructor.table_name()
 
+  # @many_to_one: (relation) ->
+  #   model_name = lingo.capitalize(lingo.en.singularize(relation))
+  #   model = Sequel.models[model_name]
+  #   if @relations.many_to_one then @relations.many_to_one.push model else @relations.many_to_one = [model]
+
   @one_to_many: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
     model = Sequel.models[model_name]
     if @relations.one_to_many then @relations.one_to_many.push model else @relations.one_to_many = [model]
 
-  # alias for one_to_many
-  @has_many = @one_to_many
+  @many_to_one: (relation) ->
+    model_name = lingo.capitalize(lingo.en.singularize(relation))
+    if @relations.many_to_one then @relations.many_to_one.push model_name else @relations.many_to_one = [model_name]
+
+  # @one_to_many: (relation) ->
+  #   model_name = lingo.capitalize(lingo.en.singularize(relation))
+  #   if @relations.one_to_many then @relations.one_to_many.push model_name else @relations.one_to_many =  [model_name]
+  # aliases for activerecord
+
+  @has_many   = @one_to_many
+  @belongs_to = @many_to_one
 
   @table_name: ->
     lingo.en.pluralize @name.toLowerCase()
