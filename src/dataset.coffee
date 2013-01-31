@@ -51,12 +51,12 @@ class @dataset
     return @clone({join: {table_name: table_name, conditions: conditions}})
 
   all: (cb) ->
-    @connection.query @sql(), (err, result) =>
-      cb err, (@row_func res for res in result)
+    @connection.query @sql(), (err, result, fields) =>
+      cb err, (@row_func res for res in result), fields
 
   first: (cb) ->
-    @connection.query @limit(1).sql(), (err, result) =>
-      cb err, (@row_func res for res in result)[0]
+    @connection.query @limit(1).sql(), (err, result, fields) =>
+      cb err, (@row_func res for res in result)[0], fields
 
   select: (fields...) ->
     return @clone({select: fields})

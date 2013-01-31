@@ -82,10 +82,6 @@ describe "Dataset", ->
     dataset = db['generic_items']
     dataset.count()
 
-  it.skip "should get all record", ->
-    dataset = db['generic_items']
-    records = dataset.all()
-
   it.skip "should iterate over recrods", ->
     dataset = db['generic_items']
     dataset.each (record) ->
