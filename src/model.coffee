@@ -140,6 +140,9 @@ class @Model
   @find: (id, cb) ->
     @find_query(id).first(cb)
 
+  @all: (cb) ->
+    @_dataset().all cb
+
   @dataset: ->
     dataset = @db.ds @table_name()
     dataset.set_row_func (result) =>

@@ -69,3 +69,10 @@ describe "Mysql", ->
         list.id.should.equal 51
         list.name.should.equal 'a list'
         done()
+
+  it "should find all", (done) ->
+    Sequel.models.Item.all (err, items) ->
+      items[0].name.should.equal 'another item'
+      items[0].constructor.name.should.equal 'Item'
+      items[1].name.should.equal 'an item'
+      done()
