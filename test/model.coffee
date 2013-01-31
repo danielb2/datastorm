@@ -22,3 +22,10 @@ describe "Model", ->
 
   it "should do a where", ->
     List.where(tv_show: 'Breaking Bad').sql().should.equal "SELECT * FROM lists WHERE tv_show='Breaking Bad'"
+
+  it "should order", ->
+    List.order('name desc').sql().should.equal "SELECT * FROM lists ORDER BY name desc"
+
+  it "should limit", ->
+    List.limit(5).sql().should.equal "SELECT * FROM lists LIMIT 5"
+

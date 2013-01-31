@@ -74,6 +74,22 @@ class @Model
       dataset = @dataset().where(conditions)
     @clone({dataset: dataset})
 
+  @order: (order) ->
+    dataset = null
+    if @opts['dataset']
+      dataset = @opts['dataset'].order(order)
+    else
+      dataset = @dataset().order(order)
+    @clone({dataset: dataset})
+
+  @limit: (limit) ->
+    dataset = null
+    if @opts['dataset']
+      dataset = @opts['dataset'].limit(limit)
+    else
+      dataset = @dataset().limit(limit)
+    @clone({dataset: dataset})
+
   @sql: ->
     if @opts['dataset']
       return @opts['dataset'].sql()
