@@ -58,6 +58,10 @@ class @dataset
     @connection.query @limit(1).sql(), (err, result, fields) =>
       cb err, (@row_func res for res in result)[0], fields
 
+  count: (cb) ->
+    @connection.query @select('COUNT(*) as count').sql(), (err, result, fields) =>
+      cb err, result[0].count, fields
+
   select: (fields...) ->
     return @clone({select: fields})
 

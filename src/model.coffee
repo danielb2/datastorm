@@ -143,6 +143,9 @@ class @Model
   @all: (cb) ->
     @_dataset().all cb
 
+  @count: (cb) ->
+    @_dataset().count cb
+
   @dataset: ->
     dataset = @db.ds @table_name()
     dataset.set_row_func (result) =>
@@ -150,6 +153,6 @@ class @Model
     return dataset
 
   @first: (cb) ->
-    @dataset().first cb
+    @_dataset().first cb
 
 module.exports = @Model

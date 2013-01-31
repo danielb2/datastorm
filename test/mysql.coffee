@@ -67,6 +67,11 @@ describe "Mysql", ->
         items[1].name.should.equal 'an item'
         done()
 
+    it "should count as model", (done) ->
+      Sequel.models.Item.count (err, count) ->
+        count.should.equal 2
+        done()
+
   describe "Dataset", ->
     it "should the first record", (done) ->
       ds = DB.ds('lists')
@@ -80,5 +85,11 @@ describe "Mysql", ->
       dataset.all (err, items, fields) ->
         items[0].name.should.equal 'another item'
         items[1].name.should.equal 'an item'
+        done()
+
+    it "should count as ds", (done) ->
+      dataset = DB.ds('items')
+      dataset.count (err, count) ->
+        count.should.equal 2
         done()
 

@@ -78,10 +78,6 @@ describe "Dataset", ->
     dataset = db['generic_items']
     dataset.insert({name: "Mountain Dew"})
 
-  it.skip "should print out the number of items", (done) ->
-    dataset = db['generic_items']
-    dataset.count()
-
   it.skip "should iterate over recrods", ->
     dataset = db['generic_items']
     dataset.each (record) ->
