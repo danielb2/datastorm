@@ -18,11 +18,11 @@ Inspired by [Sequel] for ruby, sequel-node aims to be a database toolkit for
 
 Like [Sequel], Sequel-node uses the concept of datasets to retrieve data. A Dataset
 object encapsulates an SQL query and supports chainability, letting you fetch
-data using a convenient Ruby DSL that is both concise and flexible.
+data using a convenient JavaScript DSL that is both concise and flexible.
 
 Sequel uses the same concepts of datasets to retrieve data. A Dataset object
 encapsulates an SQL query and supports chainability, letting you fetch data
-using a convenient Ruby DSL that is both concise and flexible.
+using a convenient JavaScript DSL that is both concise and flexible.
 
     DB.ds('countries').where({region: 'Middle East'}).count()
 
