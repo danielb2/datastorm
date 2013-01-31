@@ -58,7 +58,7 @@ describe "Dataset", ->
   it "should join two tables with ON clause", ->
     dataset = db.ds('items')
     dataset.join('order_items', {item_id: 'id'}).where({order_id: 1234}).sql().should.
-      equal "SELECT * FROM `items` INNER JOIN `order_items` ON order_items.item_id=items.id WHERE order_id='1234'"
+      equal "SELECT * FROM `items` INNER JOIN `order_items` ON `order_items`.`item_id`=`items`.`id` WHERE order_id='1234'"
 
   it "should straight join two tables", ->
     dataset = db.ds('items')
