@@ -16,11 +16,11 @@ describe "Dataset", ->
 
   it "should order", ->
     dataset = db.ds('generic_items')
-    dataset.order('id asc').sql().should.equal "SELECT * FROM `generic_items` ORDER BY id asc"
+    dataset.order('id asc').sql().should.equal "SELECT * FROM `generic_items` ORDER BY `id asc`"
 
   it "should group", ->
     dataset = db.ds('generic_items')
-    dataset.group('name').sql().should.equal "SELECT * FROM `generic_items` GROUP BY name"
+    dataset.group('name').sql().should.equal "SELECT * FROM `generic_items` GROUP BY `name`"
 
   it "should do simple filter", ->
     dataset = db.ds('generic_items')

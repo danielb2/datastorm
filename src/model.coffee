@@ -82,6 +82,14 @@ class @Model
       dataset = @dataset().order(order)
     @clone({dataset: dataset})
 
+  @group: (group) ->
+    dataset = null
+    if @opts['dataset']
+      dataset = @opts['dataset'].group(group)
+    else
+      dataset = @dataset().group(group)
+    @clone({dataset: dataset})
+
   @limit: (limit) ->
     dataset = null
     if @opts['dataset']

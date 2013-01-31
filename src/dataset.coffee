@@ -91,8 +91,8 @@ class @dataset
     sql += " FROM `#{@tableName}`"
     sql += " " + @_build_join() if @clause.join
     sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
-    sql += " ORDER BY #{@clause.order}" if @clause.order
-    sql += " GROUP BY #{@clause.group}" if @clause.group
+    sql += " ORDER BY `#{@clause.order}`" if @clause.order
+    sql += " GROUP BY `#{@clause.group}`" if @clause.group
     sql += " LIMIT #{@clause.limit}" if @clause.limit
     return sql
 
