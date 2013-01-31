@@ -1,7 +1,7 @@
 lingo = require 'lingo'
 class @Model
-  @relations  = {}
-  @opts    = null
+  @relations = {}
+  @opts      = {}
   constructor: (attributes) ->
     @attributes = attributes
     @set_relations()
@@ -58,8 +58,28 @@ class @Model
   _to_table_name: (name) ->
     lingo.en.pluralize(name).toLowerCase()
 
-  @join: (table, conditions) ->
-    @clone(@dataset().join(table, conditions))
+  @join: (join_table, conditions) ->
+    dataset = null
+    if @opts['dataset']
+      dataset = @opts['dataset'].join(join_table,conditions)
+    else
+      dataset = @dataset().join(join_table,conditions)
+    @clone({dataset: dataset})
+
+  @where: (conditions) ->
+    dataset = null
+    if @opts['dataset']
+      dataset = @opts['dataset'].where(conditions)
+    else
+      dataset = @dataset().where(conditions)
+    @clone({dataset: dataset})
+
+  @sql: ->
+    if @opts['dataset']
+      return @opts['dataset'].sql()
+    else
+      return @dataset().sql()
+
 
   # @private
   @merge: (obj1,obj2) ->
@@ -71,12 +91,9 @@ class @Model
     return obj3
 
   # @private
-  @clone: (dataset) ->
-    if @dataset
-      new_obj = @merge(@,{})
-      new_obj.dataset = dataset
-    else
-      new_obj.dataset = @db.ds @table_name()
+  @clone: (additions) ->
+    new_obj = @merge(@,{})
+    new_obj.opts = @merge(@opts,additions)
     return new_obj
 
 

@@ -64,10 +64,14 @@ class @dataset
 
   # @private
   _build_join: ->
-    for k, v of @clause.join.conditions
-      key = "#{@clause.join.table_name}.#{k}"
-      value = "#{@tableName}.#{v}"
-      return "INNER JOIN #{@clause.join.table_name} ON #{key}=#{value}"
+    join_query = "INNER JOIN #{@clause.join.table_name}"
+    if @clause.join.conditions
+      for k, v of @clause.join.conditions
+        key = "#{@clause.join.table_name}.#{k}"
+        value = "#{@tableName}.#{v}"
+        return join_query + " ON #{key}=#{value}"
+    else
+      return join_query
 
   sql: ->
     whereClause = []

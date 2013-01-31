@@ -55,10 +55,15 @@ describe "Dataset", ->
     dataset = db.ds('generic_items')
     dataset.where({title: 'mountain dew'}).where("created_at='whatever'").sql().should.equal "SELECT * FROM generic_items WHERE title='mountain dew' AND created_at='whatever'"
 
-  it "should join two tables", ->
+  it "should join two tables with ON clause", ->
     dataset = db.ds('items')
     dataset.join('order_items', {item_id: 'id'}).where({order_id: 1234}).sql().should.
       equal "SELECT * FROM items INNER JOIN order_items ON order_items.item_id=items.id WHERE order_id='1234'"
+
+  it "should straight join two tables", ->
+    dataset = db.ds('items')
+    dataset.join('order_items').sql().should.
+      equal "SELECT * FROM items INNER JOIN order_items"
 
   it "should allow to modify select", ->
     dataset = db.ds('posts')

@@ -16,5 +16,9 @@ describe "Model", ->
   it "should find a record", ->
     List.find_sql(123).should.equal "SELECT * FROM lists WHERE id='123'"
 
-  it.skip "should do a join", ->
-    List.join('items').should.equal "SELECT * FROM lists WHERE id='123'"
+  it "should do a join", ->
+    List.join('items', {list_id: 'id'}).sql().should.equal "SELECT * FROM lists INNER JOIN items ON items.list_id=lists.id"
+    List.join('items').sql().should.equal "SELECT * FROM lists INNER JOIN items"
+
+  it "should do a where", ->
+    List.where(tv_show: 'Breaking Bad').sql().should.equal "SELECT * FROM lists WHERE tv_show='Breaking Bad'"
