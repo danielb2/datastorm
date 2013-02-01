@@ -53,3 +53,11 @@ describe "Model", ->
       @db = DB
     Character.where(id: 3).update_sql({first_name: 'walter', last_name: 'bishop', age: 64}).should.
       equal "UPDATE `characters` SET `first_name` = 'walter', `last_name` = 'bishop', `age` = 64 WHERE id='3'"
+
+  it "should return true if model instance has changed", ->
+    class Character extends Sequel.Model
+      @db = DB
+    character = new Character title: 'foo'
+    character.changed().should.equal false
+    character.title = 'blah'
+    character.changed().should.equal true

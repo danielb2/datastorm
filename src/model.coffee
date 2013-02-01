@@ -59,9 +59,9 @@ class @Model
 
   # @private
   set_relations: ->
-    @set_one_to_many_association()
-    @set_many_to_one_association()
-    @set_many_to_many_association()
+    @set_one_to_many_association() if @constructor.relations.one_to_many
+    @set_many_to_one_association() if @constructor.relations.many_to_one
+    @set_many_to_many_association() if @constructor.relations.many_to_many
 
     # console.log @constructor.relations
 
@@ -104,6 +104,11 @@ class @Model
   @limit: (limit) ->
     dataset = @_dataset().limit(limit)
     @clone({dataset: dataset})
+
+  changed: ->
+    for k, v of @attributes
+      return true if @[k] != v
+    return false
 
   @sql: ->
     if @opts['dataset']
