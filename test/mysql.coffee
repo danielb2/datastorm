@@ -17,6 +17,10 @@ class Sequel.models.Tag extends Sequel.Model
   @many_to_many 'lists'
 
 describe "Mysql", ->
+  beforeEach (done) ->
+    {exec, spawn} = require('child_process')
+    exec 'mysql -uroot sequel_test < test/sequel_test.sql', ->
+      done()
   describe "Model", ->
     it "should the first record as a model", (done) ->
       Sequel.models.List.first (err, list) ->
