@@ -85,8 +85,8 @@ class @dataset
     for k, v of data
       field_names.push k
       field_values.push v
-    field_name_str = @_insert_replace(field_names)
-    field_value_str = @_insert_replace(field_values)
+    field_name_str = JSON.stringify(field_names).replace(/"/g,'`','gi').replace(/[\[\]]/g,'')
+    field_value_str = JSON.stringify(field_values).replace(/"/g,'\'','gi').replace(/[\[\]]/g,'')
     sql = "INSERT INTO `#{@tableName}` (#{field_name_str}) VALUES (#{field_value_str})"
 
   _insert_replace: (array) ->

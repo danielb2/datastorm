@@ -71,8 +71,8 @@ describe "Dataset", ->
 
   it "should insert data", ->
     dataset = db.ds('posts')
-    dataset.insert_sql(first_name: 'walter', last_name: 'bishop', age: 33).should.
-      equal "INSERT INTO `posts` (`first_name`,`last_name`,`age`) VALUES (`walter`,`bishop`,33)"
+    dataset.insert_sql(first_name: 'walter', last_name: 'bishop', age: 64).should.
+      equal "INSERT INTO `posts` (`first_name`,`last_name`,`age`) VALUES ('walter','bishop',64)"
 
   it.skip "should create table", (done) ->
     db.create_table 'generic_items', (handle) ->
