@@ -114,8 +114,9 @@ describe "Mysql", ->
 
     it "should insert data", (done) ->
       dataset = DB.ds('items')
-      dataset.insert {name: 'inserted item'}, (err, result) ->
+      dataset.insert {name: 'inserted item'}, (err, row_id) ->
         dataset.where(name: 'inserted item').all (err, results) ->
           results[0].name.should.equal 'inserted item'
+          row_id.should.equal results[0].id
           done()
 

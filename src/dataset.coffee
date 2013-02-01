@@ -94,7 +94,7 @@ class @dataset
 
   insert: (data, cb) ->
     @connection.query @insert_sql(data), (err, result, fields) =>
-      cb err, result, fields
+      cb err, result.insertId, fields
 
   sql: ->
     whereClause = []
