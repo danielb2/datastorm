@@ -1,7 +1,7 @@
 require "./_helper"
 
 
-DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'classrooms_development'}
+DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
 class List extends Sequel.Model
   @db = DB
 
@@ -41,3 +41,9 @@ describe "Model", ->
   it "be stateless chainable", ->
     List.where({id: 123})
     List.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM `lists` WHERE title='mountain dew'"
+
+  it "should insert data for instance", ->
+    class Character extends Sequel.Model
+      @db = DB
+    Character.insert_sql({first_name: 'walter', last_name: 'bishop', age: 64}).should.
+      equal "INSERT INTO `characters` (`first_name`,`last_name`,`age`) VALUES ('walter','bishop',64)"

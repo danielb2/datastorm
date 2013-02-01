@@ -159,6 +159,11 @@ class @Model
   @find: (id, cb) ->
     @find_query(id).first(cb)
 
+  @insert_sql: (data) ->
+    @dataset().insert_sql(data)
+  @insert: (data) ->
+    @dataset().insert(data)
+
   @all: (cb) ->
     @_dataset().all cb
 
