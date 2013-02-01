@@ -110,6 +110,10 @@ class @dataset
 
     return sql
 
+  update: (data, cb) ->
+    @connection.query @update_sql(data), (err, result, fields) =>
+      cb err, result.affectedRows, fields
+
   _stringify_field_names: (array) ->
     return JSON.stringify(array).replace(/"/g,'`','gi').replace(/[\[\]]/g,'')
   _stringify_field_values: (array) ->

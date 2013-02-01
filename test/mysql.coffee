@@ -120,3 +120,11 @@ describe "Mysql", ->
           row_id.should.equal results[0].id
           done()
 
+    it "should update data", (done) ->
+      dataset = DB.ds('items')
+      dataset.update {name: 'jesse pinkman'}, (err, affected_rows) ->
+        dataset.where(name: 'jesse pinkman').all (err, results) ->
+          results[0].name.should.equal 'jesse pinkman'
+          affected_rows.should.equal results.length
+          done()
+
