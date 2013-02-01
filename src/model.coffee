@@ -1,9 +1,9 @@
 lingo = require 'lingo'
 class @Model
   @relations = {}
-  @opts      = {}
+  @opts      = { new: true }
   constructor: (attributes) ->
-    @attributes = attributes
+    @values = attributes
     @set_relations()
     for name, value of attributes
       @[name] = value
@@ -106,7 +106,7 @@ class @Model
     @clone({dataset: dataset})
 
   modified: ->
-    for k, v of @attributes
+    for k, v of @values
       return true if @[k] != v
     return false
 
