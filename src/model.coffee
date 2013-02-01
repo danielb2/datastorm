@@ -164,6 +164,11 @@ class @Model
   @insert: (data) ->
     @dataset().insert(data)
 
+  @update_sql: (data) ->
+    @_dataset().update_sql(data)
+  @update: (data) ->
+    @_dataset().update(data)
+
   @all: (cb) ->
     @_dataset().all cb
 

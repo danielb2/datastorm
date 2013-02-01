@@ -47,3 +47,9 @@ describe "Model", ->
       @db = DB
     Character.insert_sql({first_name: 'walter', last_name: 'bishop', age: 64}).should.
       equal "INSERT INTO `characters` (`first_name`,`last_name`,`age`) VALUES ('walter','bishop',64)"
+
+  it "should update data for instance", ->
+    class Character extends Sequel.Model
+      @db = DB
+    Character.where(id: 3).update_sql({first_name: 'walter', last_name: 'bishop', age: 64}).should.
+      equal "UPDATE `characters` SET `first_name` = 'walter', `last_name` = 'bishop', `age` = 64 WHERE id='3'"
