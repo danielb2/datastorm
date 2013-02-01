@@ -85,12 +85,9 @@ class @dataset
     for k, v of data
       field_names.push k
       field_values.push v
-    field_name_str = JSON.stringify(field_names).replace(/"/g,'`','gi').replace(/[\[\]]/g,'')
-    field_value_str = JSON.stringify(field_values).replace(/"/g,'\'','gi').replace(/[\[\]]/g,'')
+    field_name_str  = @_stringify_field_names(field_names)
+    field_value_str = @_stringify_field_values(field_values)
     sql = "INSERT INTO `#{@tableName}` (#{field_name_str}) VALUES (#{field_value_str})"
-
-  _insert_replace: (array) ->
-    JSON.stringify(array).replace(/"/g,'`','gi').replace(/[\[\]]/g,'')
 
   insert: (data, cb) ->
     @connection.query @insert_sql(data), (err, result, fields) =>
@@ -99,7 +96,7 @@ class @dataset
   update_sql: (data) ->
     setClause = []
     for k, v of data
-      field_name_str = @_stringify_field_names([k])
+      field_name_str  = @_stringify_field_names([k])
       field_value_str = @_stringify_field_values([v])
       setClause.push "#{field_name_str} = #{field_value_str}"
 
@@ -122,8 +119,8 @@ class @dataset
     whereClause = []
     for k, v of @clause.where
       if toString.call(v) == '[object Array]'
-        out = JSON.stringify(v).replace(/"/g,'\'','gi').replace(/[\[\]]/g,'')
-        whereClause.push "#{k} IN(#{out})"
+        field_values = @_stringify_field_values([v])
+        whereClause.push "#{k} IN(#{field_values})"
       else
         whereClause.push "#{k}='#{v}'"
     if @clause.where_strings
