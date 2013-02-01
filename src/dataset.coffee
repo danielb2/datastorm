@@ -58,6 +58,8 @@ class @dataset
     @connection.query @limit(1).sql(), (err, result, fields) =>
       cb err, (@row_func res for res in result)[0], fields
 
+  insert: (values, cb) ->
+
   count: (cb) ->
     @connection.query @select('COUNT(*) as count').sql(), (err, result, fields) =>
       cb err, result[0].count, fields
@@ -76,6 +78,23 @@ class @dataset
         return join_query + " ON (#{key}=#{value})"
     else
       return join_query
+
+  insert_sql: (data) ->
+    field_names = []
+    field_values = []
+    for k, v of data
+      field_names.push k
+      field_values.push v
+    field_name_str = @_insert_replace(field_names)
+    field_value_str = @_insert_replace(field_values)
+    sql = "INSERT INTO `#{@tableName}` (#{field_name_str}) VALUES (#{field_value_str})"
+
+  _insert_replace: (array) ->
+    JSON.stringify(array).replace(/"/g,'`','gi').replace(/[\[\]]/g,'')
+
+  insert: (data, cb) ->
+    @connection.query @insert_sql(data), (err, result, fields) =>
+      cb err, result, fields
 
   sql: ->
     whereClause = []

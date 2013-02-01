@@ -69,6 +69,11 @@ describe "Dataset", ->
     dataset = db.ds('posts')
     dataset.select('stamp', 'name').sql().should.equal "SELECT stamp, name FROM `posts`"
 
+  it "should insert data", ->
+    dataset = db.ds('posts')
+    dataset.insert_sql(first_name: 'walter', last_name: 'bishop', age: 33).should.
+      equal "INSERT INTO `posts` (`first_name`,`last_name`,`age`) VALUES (`walter`,`bishop`,33)"
+
   it.skip "should create table", (done) ->
     db.create_table 'generic_items', (handle) ->
       handle.add 'primary_key', 'id'

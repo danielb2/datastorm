@@ -108,3 +108,10 @@ describe "Mysql", ->
         count.should.equal 2
         done()
 
+    it.skip "should insert data", (done) ->
+      dataset = DB.ds('items')
+      dataset.insert {name: 'inserted item'}, (err, count) ->
+        dataset.where(name: 'inserted item').all (err, results) ->
+          results[0].name.should.equal 'inserted item'
+          done()
+
