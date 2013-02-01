@@ -58,6 +58,6 @@ describe "Model", ->
     class Character extends Sequel.Model
       @db = DB
     character = new Character title: 'foo'
-    character.changed().should.equal false
+    character.modified().should.equal false
     character.title = 'blah'
-    character.changed().should.equal true
+    character.modified().should.equal true

@@ -105,7 +105,7 @@ class @Model
     dataset = @_dataset().limit(limit)
     @clone({dataset: dataset})
 
-  changed: ->
+  modified: ->
     for k, v of @attributes
       return true if @[k] != v
     return false
