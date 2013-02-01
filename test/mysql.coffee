@@ -6,11 +6,15 @@ DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', databa
 class Sequel.models.List extends Sequel.Model
   @db = DB
   @one_to_many 'items'
+  @many_to_many 'tags'
 
 class Sequel.models.Item extends Sequel.Model
   @db = DB
   @many_to_one 'list'
 
+class Sequel.models.Tag extends Sequel.Model
+  @db = DB
+  @many_to_many 'lists'
 
 describe "Mysql", ->
   describe "Model", ->
@@ -71,6 +75,17 @@ describe "Mysql", ->
       Sequel.models.Item.count (err, count) ->
         count.should.equal 2
         done()
+
+    it.skip "should link to records through many_to_many relationship", (done) ->
+      Sequel.models.Item.find 42,  (err, item) ->
+        item.name.should.equal 'an item'
+        item.constructor.name.should.equal 'Item'
+        item.list (err, list) ->
+          list.constructor.name.should.equal 'List'
+          list.id.should.equal 51
+          list.name.should.equal 'a list'
+          done()
+
 
   describe "Dataset", ->
     it "should the first record", (done) ->

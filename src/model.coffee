@@ -43,10 +43,25 @@ class @Model
           where(where)
         dataset.first cb
 
+  set_many_to_many_association: ->
+    for relation in @constructor.relations.many_to_one
+      model_name = @_to_model_name(relation)
+      function_name = model_name.toLowerCase()
+      @[function_name] = (cb) ->
+        model = Sequel.models[model_name]
+        join = {}
+        join[function_name + '_id'] = 'id'
+        where = {}
+        where[@constructor.table_name() + '.id'] = @id
+        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
+          where(where)
+        dataset.first cb
+
   # @private
   set_relations: ->
     @set_one_to_many_association()
     @set_many_to_one_association()
+    @set_many_to_many_association()
 
     # console.log @constructor.relations
 
@@ -123,6 +138,10 @@ class @Model
   @one_to_many: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
     if @relations.one_to_many then @relations.one_to_many.push model_name else @relations.one_to_many =  [model_name]
+
+  @many_to_many: (relation) ->
+    model_name = lingo.capitalize(lingo.en.singularize(relation))
+    if @relations.many_to_many then @relations.many_to_many.push model_name else @relations.many_to_many =  [model_name]
 
   # aliases for activerecord
   @has_many   = @one_to_many
