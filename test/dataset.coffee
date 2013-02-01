@@ -41,11 +41,11 @@ describe "Dataset", ->
 
   it "should use in for where array", ->
     dataset = db.ds('generic_items')
-    dataset.where({id: [1,2,3]}).sql().should.equal "SELECT * FROM `generic_items` WHERE id IN(1,2,3)"
+    dataset.where({id: [1,2,3]}).sql().should.equal "SELECT * FROM `generic_items` WHERE `id` IN(1,2,3)"
 
   it "should use in for where string array", ->
     dataset = db.ds('generic_items')
-    dataset.where({name: ['one','two']}).sql().should.equal "SELECT * FROM `generic_items` WHERE name IN('one','two')"
+    dataset.where({name: ['one','two']}).sql().should.equal "SELECT * FROM `generic_items` WHERE `name` IN('one','two')"
 
   it "should be able to define our own WHERE", ->
     dataset = db.ds('generic_items')

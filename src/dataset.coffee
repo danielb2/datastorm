@@ -118,9 +118,10 @@ class @dataset
   _build_where: ->
     whereClause = []
     for k, v of @clause.where
+      field_name_str  = @_stringify_field_names([k])
+      field_value_str = @_stringify_field_values([v])
       if toString.call(v) == '[object Array]'
-        field_values = @_stringify_field_values([v])
-        whereClause.push "#{k} IN(#{field_values})"
+        whereClause.push "#{field_name_str} IN(#{field_value_str})"
       else
         whereClause.push "#{k}='#{v}'"
     if @clause.where_strings
