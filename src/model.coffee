@@ -1,11 +1,12 @@
 lingo = require 'lingo'
 class @Model
   @relations = {}
-  @opts      = { new: true }
-  constructor: (attributes) ->
-    @values = attributes
+  @opts      = {}
+  constructor: (values) ->
+    @values = values
+    @new    = true
     @set_relations()
-    for name, value of attributes
+    for name, value of values
       @[name] = value
 
   row_func: (result) ->
@@ -183,7 +184,9 @@ class @Model
   @dataset: ->
     dataset = @db.ds @table_name()
     dataset.set_row_func (result) =>
-      new @ result
+      model_instance = new @ result
+      model_instance.new = false
+      model_instance
     return dataset
 
   @first: (cb) ->

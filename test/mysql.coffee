@@ -29,6 +29,11 @@ describe "Mysql", ->
         list.name.should.equal 'a list'
         done()
 
+    it "record retrieved should not be new", (done) ->
+      Sequel.models.List.first (err, list) ->
+        list.new.should.equal false
+        done()
+
     it "should fire the row_proc method for each record", (done) ->
       ds = DB.ds('lists')
       rows = []

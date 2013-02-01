@@ -61,3 +61,9 @@ describe "Model", ->
     character.modified().should.equal false
     character.title = 'blah'
     character.modified().should.equal true
+
+  it "should return true if model instance is new", ->
+    class Character extends Sequel.Model
+      @db = DB
+    character = new Character title: 'foo'
+    character.new.should.equal true
