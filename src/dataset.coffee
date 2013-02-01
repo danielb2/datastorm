@@ -96,7 +96,29 @@ class @dataset
     @connection.query @insert_sql(data), (err, result, fields) =>
       cb err, result.insertId, fields
 
-  sql: ->
+  update_sql: (data) ->
+    setClause = []
+    for k, v of data
+      field_name_str = @_stringify_field_names([k])
+      field_value_str = @_stringify_field_values([v])
+      setClause.push "#{field_name_str} = #{field_value_str}"
+
+    whereClause = @_build_where()
+    sql = "UPDATE `#{@tableName}`"
+    sql += " " + @_build_join() if @clause.join
+    sql += " SET " + setClause.join(', ')
+    sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
+    sql += " ORDER BY `#{@clause.order}`" if @clause.order
+    sql += " LIMIT #{@clause.limit}" if @clause.limit
+
+    return sql
+
+  _stringify_field_names: (array) ->
+    return JSON.stringify(array).replace(/"/g,'`','gi').replace(/[\[\]]/g,'')
+  _stringify_field_values: (array) ->
+    return JSON.stringify(array).replace(/"/g,'\'','gi').replace(/[\[\]]/g,'')
+
+  _build_where: ->
     whereClause = []
     for k, v of @clause.where
       if toString.call(v) == '[object Array]'
@@ -107,8 +129,10 @@ class @dataset
     if @clause.where_strings
       for k in @clause.where_strings
         whereClause.push k
-    if @clause.join
-      @_build_join()
+    return whereClause
+
+  sql: ->
+    whereClause = @_build_where()
     sql = "SELECT "
     sql += if @clause.select then @clause.select.join(', ') else '*'
     # sql += if @clause.select then ("`#{x}`" for x in @clause.select).join(', ') else '*'

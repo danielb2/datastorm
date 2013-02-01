@@ -74,6 +74,11 @@ describe "Dataset", ->
     dataset.insert_sql(first_name: 'walter', last_name: 'bishop', age: 64).should.
       equal "INSERT INTO `posts` (`first_name`,`last_name`,`age`) VALUES ('walter','bishop',64)"
 
+  it "should update data", ->
+    dataset = db.ds('movies')
+    dataset.join('characters').where({name: 'walter'}).update_sql({name: 'peter'}).should.
+      equal "UPDATE `movies` INNER JOIN `characters` SET `name` = 'peter' WHERE name='walter'"
+
   it.skip "should create table", (done) ->
     db.create_table 'generic_items', (handle) ->
       handle.add 'primary_key', 'id'
