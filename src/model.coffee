@@ -107,9 +107,26 @@ class @Model
     @clone({dataset: dataset})
 
   modified: ->
+    return @new || !(@changed_columns().length == 0)
+
+  changed_columns: ->
+    return @new if @new # columns will have changed if it's a new obj
+    changed = []
     for k, v of @values
-      return true if @[k] != v
-    return false
+      changed.push k if @[k] != v
+    return changed
+
+  save: (cb) ->
+    return cb(false) unless @modified()
+    if @new
+      @constructor.insert @values, cb
+    else
+      updates = {}
+      for change in changed_columns()
+        updates[change] = @values[change]
+      @dataset().update updates, cb
+    @
+
 
   @sql: ->
     if @opts['dataset']
@@ -167,13 +184,13 @@ class @Model
 
   @insert_sql: (data) ->
     @dataset().insert_sql(data)
-  @insert: (data) ->
-    @dataset().insert(data)
+  @insert: (data, cb) ->
+    @dataset().insert(data, cb)
 
   @update_sql: (data) ->
     @_dataset().update_sql(data)
-  @update: (data) ->
-    @_dataset().update(data)
+  @update: (data, cb) ->
+    @_dataset().update(data, cb)
 
   @all: (cb) ->
     @_dataset().all cb

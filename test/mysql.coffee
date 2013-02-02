@@ -85,6 +85,12 @@ describe "Mysql", ->
         count.should.equal 2
         done()
 
+    it "should save a new item", (done) ->
+      item = new Sequel.models.Item id: 190, name: "the new item"
+      item.save (err, result) ->
+        result.should.equal 190
+        done()
+
     it.skip "should link to records through many_to_many relationship", (done) ->
       Sequel.models.Item.find 42,  (err, item) ->
         item.name.should.equal 'an item'
@@ -95,6 +101,12 @@ describe "Mysql", ->
           list.name.should.equal 'a list'
           done()
 
+  it "should return true if model instance has changed", (done) ->
+    Sequel.models.Item.find 42,  (err, item) ->
+      item.modified().should.equal false
+      item.name = 'walther smith'
+      item.modified().should.equal true
+      done()
 
   describe "Dataset", ->
     it "should the first record", (done) ->
