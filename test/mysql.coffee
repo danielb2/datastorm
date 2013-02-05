@@ -103,6 +103,7 @@ describe "Mysql", ->
     it.skip "should link to records through many_to_many relationship", (done) ->
       Sequel.models.List.find 51,  (err, list) ->
         list.tags().all (err, tags) ->
+          console.log err
           done()
 
   it "should return true if model instance has changed", (done) ->

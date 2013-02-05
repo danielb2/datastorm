@@ -55,7 +55,7 @@ class @Model
         where[@constructor.table_name() + '.id'] = @id
         dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
           where(where)
-        dataset.first cb
+        dataset
 
   # @private
   set_associations: ->

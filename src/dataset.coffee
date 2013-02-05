@@ -52,7 +52,9 @@ class @dataset
 
   query: (sql, cb) ->
     console.log sql if process.env.DEBUG
-    @connection.query sql, cb
+    @connection.query sql, (err, results, fields) ->
+      console.log err if err
+      cb(err, results, fields)
 
   all: (cb) ->
     @query @sql(), (err, result, fields) =>
