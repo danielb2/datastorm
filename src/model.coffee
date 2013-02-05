@@ -1,11 +1,10 @@
 lingo = require 'lingo'
 class @Model
-  @relations = {}
   @opts      = {}
   constructor: (values) ->
     @values = values
     @new    = true
-    @set_relations()
+    @set_associations()
     for name, value of values
       @[name] = value
 
@@ -14,7 +13,7 @@ class @Model
 
   # @private
   set_one_to_many_association: ->
-    for association in @constructor.relations.one_to_many
+    for association in @constructor.associations.one_to_many
       function_name = @_to_table_name(association)
       model_name    = @_to_model_name(association)
       @[function_name] = =>
@@ -31,8 +30,8 @@ class @Model
 
   # @private
   set_many_to_one_association: ->
-    for relation in @constructor.relations.many_to_one
-      model_name = @_to_model_name(relation)
+    for association in @constructor.associations.many_to_one
+      model_name = @_to_model_name(association)
       function_name = model_name.toLowerCase()
       @[function_name] = (cb) ->
         model = Sequel.models[model_name]
@@ -45,9 +44,9 @@ class @Model
         dataset.first cb
 
   set_many_to_many_association: ->
-    for relation in @constructor.relations.many_to_one
-      model_name = @_to_model_name(relation)
-      function_name = model_name.toLowerCase()
+    for association in @constructor.associations.many_to_many
+      function_name = @_to_table_name(association)
+      model_name    = @_to_model_name(association)
       @[function_name] = (cb) ->
         model = Sequel.models[model_name]
         join = {}
@@ -59,12 +58,11 @@ class @Model
         dataset.first cb
 
   # @private
-  set_relations: ->
-    @set_one_to_many_association() if @constructor.relations.one_to_many
-    @set_many_to_one_association() if @constructor.relations.many_to_one
-    @set_many_to_many_association() if @constructor.relations.many_to_many
-
-    # console.log @constructor.relations
+  set_associations: ->
+    return unless @constructor.associations
+    @set_one_to_many_association() if @constructor.associations.one_to_many
+    @set_many_to_one_association() if @constructor.associations.many_to_one
+    @set_many_to_many_association() if @constructor.associations.many_to_many
 
   # @private
   _to_model_name: (name) ->
@@ -156,19 +154,23 @@ class @Model
 
   @many_to_one: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
-    if @relations.many_to_one then @relations.many_to_one.push model_name else @relations.many_to_one = [model_name]
+    @associations ||= {}
+    if @associations.many_to_one then @associations.many_to_one.push model_name else @associations.many_to_one = [model_name]
 
   @one_to_many: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
-    if @relations.one_to_many then @relations.one_to_many.push model_name else @relations.one_to_many =  [model_name]
+    @associations ||= {}
+    if @associations.one_to_many then @associations.one_to_many.push model_name else @associations.one_to_many =  [model_name]
 
   @many_to_many: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
-    if @relations.many_to_many then @relations.many_to_many.push model_name else @relations.many_to_many =  [model_name]
+    @associations ||= {}
+    if @associations.many_to_many then @associations.many_to_many.push model_name else @associations.many_to_many =  [model_name]
 
   # aliases for activerecord
-  @has_many   = @one_to_many
-  @belongs_to = @many_to_one
+  @has_many                = @one_to_many
+  @belongs_to              = @many_to_one
+  @has_and_belongs_to_many = @many_to_many
 
   @table_name: ->
     lingo.en.pluralize @name.toLowerCase()

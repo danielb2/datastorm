@@ -101,13 +101,8 @@ describe "Mysql", ->
             done()
 
     it.skip "should link to records through many_to_many relationship", (done) ->
-      Sequel.models.Item.find 42,  (err, item) ->
-        item.name.should.equal 'an item'
-        item.constructor.name.should.equal 'Item'
-        item.list (err, list) ->
-          list.constructor.name.should.equal 'List'
-          list.id.should.equal 51
-          list.name.should.equal 'a list'
+      Sequel.models.List.find 51,  (err, list) ->
+        list.tags().all (err, tags) ->
           done()
 
   it "should return true if model instance has changed", (done) ->
