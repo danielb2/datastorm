@@ -91,6 +91,15 @@ describe "Mysql", ->
         result.should.equal 190
         done()
 
+    it "should update a fetched item", (done) ->
+      Sequel.models.Item.find 42, (err, item) ->
+        item.name = 'flower'
+        item.save (err, result) ->
+          result.should.equal 2
+          Sequel.models.Item.find 42, (err, result) ->
+            result.name.should.equal 'flower'
+            done()
+
     it.skip "should link to records through many_to_many relationship", (done) ->
       Sequel.models.Item.find 42,  (err, item) ->
         item.name.should.equal 'an item'

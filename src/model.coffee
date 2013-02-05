@@ -122,9 +122,9 @@ class @Model
       @constructor.insert @values, cb
     else
       updates = {}
-      for change in changed_columns()
-        updates[change] = @values[change]
-      @dataset().update updates, cb
+      for change in @changed_columns()
+        updates[change] = @values[change] = @[change]
+      @constructor.update updates, cb
     @
 
 

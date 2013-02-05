@@ -50,18 +50,20 @@ class @dataset
   join: (table_name, conditions) ->
     return @clone({join: {table_name: table_name, conditions: conditions}})
 
+  query: (sql, cb) ->
+    console.log sql if process.env.DEBUG
+    @connection.query sql, cb
+
   all: (cb) ->
-    @connection.query @sql(), (err, result, fields) =>
+    @query @sql(), (err, result, fields) =>
       cb err, (@row_func res for res in result), fields
 
   first: (cb) ->
-    @connection.query @limit(1).sql(), (err, result, fields) =>
+    @query @limit(1).sql(), (err, result, fields) =>
       cb err, (@row_func res for res in result)[0], fields
 
-  insert: (values, cb) ->
-
   count: (cb) ->
-    @connection.query @select('COUNT(*) as count').sql(), (err, result, fields) =>
+    @query @select('COUNT(*) as count').sql(), (err, result, fields) =>
       cb err, result[0].count, fields
 
   select: (fields...) ->
@@ -90,7 +92,7 @@ class @dataset
     sql = "INSERT INTO `#{@tableName}` (#{field_name_str}) VALUES (#{field_value_str})"
 
   insert: (data, cb) ->
-    @connection.query @insert_sql(data), (err, result, fields) =>
+    @query @insert_sql(data), (err, result, fields) =>
       cb err, result.insertId, fields
 
   update_sql: (data) ->
@@ -111,7 +113,7 @@ class @dataset
     return sql
 
   update: (data, cb) ->
-    @connection.query @update_sql(data), (err, result, fields) =>
+    @query @update_sql(data), (err, result, fields) =>
       cb err, result.affectedRows, fields
 
   _stringify_field_names: (array) ->
