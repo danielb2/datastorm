@@ -106,12 +106,12 @@ describe "Mysql", ->
           console.log err
           done()
 
-  it "should return true if model instance has changed", (done) ->
-    Sequel.models.Item.find 42,  (err, item) ->
-      item.modified().should.equal false
-      item.name = 'walther smith'
-      item.modified().should.equal true
-      done()
+    it "should return true if model instance has changed", (done) ->
+      Sequel.models.Item.find 42,  (err, item) ->
+        item.modified().should.equal false
+        item.name = 'walther smith'
+        item.modified().should.equal true
+        done()
 
   describe "Dataset", ->
     it "should the first record", (done) ->
