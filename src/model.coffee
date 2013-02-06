@@ -50,10 +50,11 @@ class @Model
       @[function_name] = (cb) ->
         model = Sequel.models[model_name]
         join = {}
-        join[function_name + '_id'] = 'id'
+        join[lingo.en.singularize(function_name) + '_id'] = 'id'
         where = {}
-        where[@constructor.table_name() + '.id'] = @id
-        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
+        where[lingo.en.singularize(@constructor.table_name()) + '_id'] = @id
+        join_table = [@constructor.table_name(), model.table_name()].sort().join('_')
+        dataset = model.dataset().select(model.table_name() + '.*').join(join_table, join).
           where(where)
         dataset
 
