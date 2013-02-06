@@ -65,6 +65,11 @@ describe "Dataset", ->
     dataset.join('order_items').sql().should.
       equal "SELECT * FROM `items` INNER JOIN `order_items`"
 
+  it.skip "should chain joins tables", ->
+    dataset = db.ds('lists')
+    dataset.join('items', ).join('tags').sql().should.
+      equal "SELECT * FROM `lists` INNER JOIN `items` INNER JOIN `tags`"
+
   it "should allow to modify select", ->
     dataset = db.ds('posts')
     dataset.select('stamp', 'name').sql().should.equal "SELECT stamp, name FROM `posts`"

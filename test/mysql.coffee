@@ -100,18 +100,23 @@ describe "Mysql", ->
             result.name.should.equal 'flower'
             done()
 
-    it.skip "should link to records through many_to_many relationship", (done) ->
+    # SELECT `tags`.* FROM `tags` INNER JOIN `lists_tags` ON ((`lists_tags`.`tag_id` = `tags`.`id`) AND (`lists_tags`.`list_id` = 51))
+    it "should link to records through many_to_many relationship", (done) ->
       Sequel.models.List.find 51,  (err, list) ->
         list.tags().all (err, tags) ->
-          console.log err
-          done()
+          tags[0].name.should.equal 'supplies'
+          tags[1].name.should.equal 'fun'
+          Sequel.models.Tag.find 1,  (err, tag) ->
+            tag.lists().all (err, lists) ->
+              lists[0].name.should.equal 'a list'
+              done()
 
-  it "should return true if model instance has changed", (done) ->
-    Sequel.models.Item.find 42,  (err, item) ->
-      item.modified().should.equal false
-      item.name = 'walther smith'
-      item.modified().should.equal true
-      done()
+    it "should return true if model instance has changed", (done) ->
+      Sequel.models.Item.find 42,  (err, item) ->
+        item.modified().should.equal false
+        item.name = 'walther smith'
+        item.modified().should.equal true
+        done()
 
   describe "Dataset", ->
     it "should the first record", (done) ->
