@@ -37,8 +37,8 @@ class @dataset
       new_where = if @clause.where then @merge(@clause.where, conditions) else conditions
       return @clone({where: new_where})
 
-  limit: (num) ->
-    new_obj = @clone({limit: num})
+  limit: (limit,offset=null) ->
+    new_obj = @clone({limit: limit, offset: offset})
     return new_obj
 
   order: (order) ->
@@ -111,6 +111,7 @@ class @dataset
     sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
     sql += " ORDER BY `#{@clause.order}`" if @clause.order
     sql += " LIMIT #{@clause.limit}" if @clause.limit
+    sql += " OFFSET #{@clause.offset}" if @clause.offset
 
     return sql
 
@@ -148,6 +149,7 @@ class @dataset
     sql += " ORDER BY `#{@clause.order}`" if @clause.order
     sql += " GROUP BY `#{@clause.group}`" if @clause.group
     sql += " LIMIT #{@clause.limit}" if @clause.limit
+    sql += " OFFSET #{@clause.offset}" if @clause.offset
     return sql
 
 module.exports = @dataset

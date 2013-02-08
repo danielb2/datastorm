@@ -14,6 +14,14 @@ describe "Dataset", ->
     dataset = db.ds('generic_items')
     dataset.limit(3).sql().should.equal "SELECT * FROM `generic_items` LIMIT 3"
 
+  it "should limit with offset", ->
+    dataset = db.ds('generic_items')
+    dataset.limit(3, 10).sql().should.equal "SELECT * FROM `generic_items` LIMIT 3 OFFSET 10"
+
+  it "should offset", ->
+    dataset = db.ds('generic_items')
+    dataset.limit(null, 10).sql().should.equal "SELECT * FROM `generic_items` OFFSET 10"
+
   it "should order", ->
     dataset = db.ds('generic_items')
     dataset.order('id asc').sql().should.equal "SELECT * FROM `generic_items` ORDER BY `id asc`"
