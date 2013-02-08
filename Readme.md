@@ -63,8 +63,7 @@ A model instance stores its values as a hash with column symbol keys, which
 you can access directly via the values method:
 
     Post.find 123, (err, post) ->
-      post.values #=> {id: 123, category: 'coffee-script', title: 'hello
-      world'}
+      post.values #=> {id: 123, category: 'coffee-script', title: 'hello world'}
 
 You can read the record values as object attributes, assuming the attribute
 names are valid columns in the model's dataset:
