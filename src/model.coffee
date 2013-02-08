@@ -52,7 +52,7 @@ class @Model
       unless func
         @errors.add field_name, 'No validation function was specified'
 
-      func.bind({errors: @errors}) @[field_name]
+      func.bind(@) @[field_name]
 
   row_func: (result) ->
     new @constructor result
