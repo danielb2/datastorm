@@ -1,4 +1,22 @@
 lingo = require 'lingo'
+
+class Errors
+  constructor: ->
+    @errors = {}
+
+  add: (name, msg) ->
+    @errors[name] || @errors[name] = []
+    @errors[name].push msg
+
+  @prototype.__defineGetter__ 'length', ->
+    errors = []
+    for error of @errors
+      errors.push error
+    errors.length
+
+  hasErrors: ->
+    @length > 0
+
 class @Model
   @opts        = {}
   @validations = {}
@@ -21,10 +39,10 @@ class @Model
     return false
 
   validate: () ->
-    @errors = {}
+    @errors = new Errors
     for field of @values
       @validate_field(field) if @hasOwnProperty field
-    !@hasErrors()
+    @errors.length == 0
 
   # @private
   validate_field: (field_name) ->
@@ -32,20 +50,9 @@ class @Model
     return unless @constructor.validations[field_name]
     for func in @constructor.validations[field_name]
       unless func
-        @errors[field_name] ||= []
-        @errors[field_name].push "No validation for fieldname `#{field_name}`"
+        @errors.add field_name, 'No validation function was specified'
 
-      unless value
-        @errors[field_name] ||= []
-        @errors[field_name].push "No value for fieldname `#{field_name}`"
-
-      unless func(@[field_name])
-        @errors[field_name] ||= []
-        @errors[field_name].push "Validation failed for for fieldname `#{field_name}`"
-
-
-    return func(@[field_name])
-
+      func.bind({errors: @errors}) @[field_name]
 
   row_func: (result) ->
     new @constructor result

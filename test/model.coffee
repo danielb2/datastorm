@@ -5,8 +5,10 @@ DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', databa
 class List extends Sequel.Model
   @db = DB
   @validate 'age', (value) ->
-    return true if typeof value == 'number'
-    return false
+    @errors.add value, 'Not of type number' unless typeof value == 'number'
+
+  @validate 'first_name', (value) ->
+    @errors.add value, 'We dont allow Debra' if value == 'debra'
 
 
 describe "Model", ->
@@ -76,8 +78,9 @@ describe "Model", ->
     list.validate().should.equal false
 
   it "should not save on failed validate", (done) ->
-    list = new List age: 'twenty three', last_name: 'morgan', first_name: 'dexter'
+    list = new List age: 'twenty three', last_name: 'morgan', first_name: 'debra'
     list.save (err, id) ->
       err.should.exist
       list.errors.should.have.property.age
+      list.errors.should.have.property.debra
       done()
