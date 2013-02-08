@@ -157,6 +157,7 @@ class @Model
 
   save: (cb) ->
     return cb(false) unless @modified()
+    return cb 'Validations failed. Check obj.errors to see the errors.' unless @validate()
     if @new
       @constructor.insert @values, cb
     else

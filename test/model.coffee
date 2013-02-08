@@ -75,5 +75,9 @@ describe "Model", ->
     list = new List age: 'twenty three', last_name: 'morgan', first_name: 'dexter'
     list.validate().should.equal false
 
-  it.skip "should not save on failed validate", (done) ->
-    done()
+  it "should not save on failed validate", (done) ->
+    list = new List age: 'twenty three', last_name: 'morgan', first_name: 'dexter'
+    list.save (err, id) ->
+      err.should.exist
+      list.errors.should.have.property.age
+      done()
