@@ -91,10 +91,10 @@ describe "Mysql", ->
         result.should.equal 190
         done()
 
-    it.skip "should behave well even if some values are bad", (done) ->
-      item = new Sequel.models.Item id: 190, flower: "there's no flower"
+    it "should behave well even if some values are bad", (done) ->
+      item = new Sequel.models.Item id: 190, flower: "theres no flower"
       item.save (err, result) ->
-        err.sohuld.exist
+        err.should.exist
         done()
 
     it "should update a fetched item", (done) ->
@@ -162,3 +162,8 @@ describe "Mysql", ->
           affected_rows.should.equal results.length
           done()
 
+    it "should behave well even if some values are bad", (done) ->
+      dataset = DB.ds('items')
+      dataset.insert {blah: 'inserted item'}, (err, row_id) ->
+        err.should.exist
+        done()

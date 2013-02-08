@@ -53,22 +53,21 @@ class @dataset
   query: (sql, cb) ->
     console.log sql if process.env.DEBUG
     @connection.query sql, (err, results, fields) ->
-      console.log err if err
       cb(err, results, fields)
 
   all: (cb) ->
     @query @sql(), (err, result, fields) =>
-      cb err if err
+      return cb err if err
       cb err, (@row_func res for res in result), fields
 
   first: (cb) ->
     @query @limit(1).sql(), (err, result, fields) =>
-      cb err if err
+      return cb err if err
       cb err, (@row_func res for res in result)[0], fields
 
   count: (cb) ->
     @query @select('COUNT(*) as count').sql(), (err, result, fields) =>
-      cb err if err
+      return cb err if err
       cb err, result[0].count, fields
 
   select: (fields...) ->
@@ -98,7 +97,7 @@ class @dataset
 
   insert: (data, cb) ->
     @query @insert_sql(data), (err, result, fields) =>
-      cb err if err
+      return cb err if err
       cb err, result.insertId, fields
 
   update_sql: (data) ->
@@ -121,7 +120,7 @@ class @dataset
 
   update: (data, cb) ->
     @query @update_sql(data), (err, result, fields) =>
-      cb err if err
+      return cb err if err
       cb err, result.affectedRows, fields
 
   _stringify_field_names: (array) ->
