@@ -41,8 +41,8 @@ Sequel.Model
 Using coffee script syntax (use http://js2coffee.org/ to translate) for sake
 of abbriviation:
 
-DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
-    class Post extends Sequel.Model
+    DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
+        class Post extends Sequel.Model
 
 Sequel model classes assume that the table name is an underscored plural of
 the class name:
