@@ -1,12 +1,51 @@
 lingo = require 'lingo'
 class @Model
-  @opts      = {}
+  @opts        = {}
+  @validations = {}
   constructor: (values) ->
-    @values = values
-    @new    = true
+    @values      = values
+    @new         = true
     @set_associations()
+    @errors      = {}
     for name, value of values
       @[name] = value
+
+  @validate: (field_name, cb) ->
+    @validations[field_name] ||= []
+    @validations[field_name].push cb
+
+  hasErrors: ->
+    errors = []
+    for error of @errors
+      return true
+    return false
+
+  validate: () ->
+    @errors = {}
+    for field of @values
+      @validate_field(field) if @hasOwnProperty field
+    !@hasErrors()
+
+  # @private
+  validate_field: (field_name) ->
+    value = @[field_name]
+    return unless @constructor.validations[field_name]
+    for func in @constructor.validations[field_name]
+      unless func
+        @errors[field_name] ||= []
+        @errors[field_name].push "No validation for fieldname `#{field_name}`"
+
+      unless value
+        @errors[field_name] ||= []
+        @errors[field_name].push "No value for fieldname `#{field_name}`"
+
+      unless func(@[field_name])
+        @errors[field_name] ||= []
+        @errors[field_name].push "Validation failed for for fieldname `#{field_name}`"
+
+
+    return func(@[field_name])
+
 
   row_func: (result) ->
     new @constructor result
@@ -14,8 +53,8 @@ class @Model
   # @private
   set_one_to_many_association: ->
     for association in @constructor.associations.one_to_many
-      function_name = @_to_table_name(association)
-      model_name    = @_to_model_name(association)
+      function_name = @to_table_name(association)
+      model_name    = @to_model_name(association)
       @[function_name] = =>
         model = Sequel.models[model_name]
         join = {}
@@ -31,7 +70,7 @@ class @Model
   # @private
   set_many_to_one_association: ->
     for association in @constructor.associations.many_to_one
-      model_name = @_to_model_name(association)
+      model_name = @to_model_name(association)
       function_name = model_name.toLowerCase()
       @[function_name] = (cb) ->
         model = Sequel.models[model_name]
@@ -43,10 +82,11 @@ class @Model
           where(where)
         dataset.first cb
 
+  # @private
   set_many_to_many_association: ->
     for association in @constructor.associations.many_to_many
-      function_name = @_to_table_name(association)
-      model_name    = @_to_model_name(association)
+      function_name = @to_table_name(association)
+      model_name    = @to_model_name(association)
       @[function_name] = (cb) ->
         model = Sequel.models[model_name]
         join = {}
@@ -66,11 +106,11 @@ class @Model
     @set_many_to_many_association() if @constructor.associations.many_to_many
 
   # @private
-  _to_model_name: (name) ->
+  to_model_name: (name) ->
     lingo.capitalize(lingo.en.singularize(name))
 
   # @private
-  _to_table_name: (name) ->
+  to_table_name: (name) ->
     lingo.en.pluralize(name).toLowerCase()
 
   # @private
@@ -117,6 +157,7 @@ class @Model
 
   save: (cb) ->
     return cb(false) unless @modified()
+    return cb 'Validations failed. Check obj.errors to see the errors.' unless @validate()
     if @new
       @constructor.insert @values, cb
     else

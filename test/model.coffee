@@ -4,6 +4,10 @@ require "./_helper"
 DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
 class List extends Sequel.Model
   @db = DB
+  @validate 'age', (value) ->
+    return true if typeof value == 'number'
+    return false
+
 
 describe "Model", ->
   db = null
@@ -62,3 +66,18 @@ describe "Model", ->
       @db = DB
     character = new Character title: 'foo'
     character.new.should.equal true
+
+  it "should validate fields", ->
+    list = new List age: 23, last_name: 'morgan', first_name: 'dexter'
+    list.validate().should.equal true
+
+  it "should fail validate fields with bad value", ->
+    list = new List age: 'twenty three', last_name: 'morgan', first_name: 'dexter'
+    list.validate().should.equal false
+
+  it "should not save on failed validate", (done) ->
+    list = new List age: 'twenty three', last_name: 'morgan', first_name: 'dexter'
+    list.save (err, id) ->
+      err.should.exist
+      list.errors.should.have.property.age
+      done()
