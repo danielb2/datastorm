@@ -14,8 +14,8 @@ class @Model
   # @private
   set_one_to_many_association: ->
     for association in @constructor.associations.one_to_many
-      function_name = @_to_table_name(association)
-      model_name    = @_to_model_name(association)
+      function_name = @to_table_name(association)
+      model_name    = @to_model_name(association)
       @[function_name] = =>
         model = Sequel.models[model_name]
         join = {}
@@ -31,7 +31,7 @@ class @Model
   # @private
   set_many_to_one_association: ->
     for association in @constructor.associations.many_to_one
-      model_name = @_to_model_name(association)
+      model_name = @to_model_name(association)
       function_name = model_name.toLowerCase()
       @[function_name] = (cb) ->
         model = Sequel.models[model_name]
@@ -43,10 +43,11 @@ class @Model
           where(where)
         dataset.first cb
 
+  # @private
   set_many_to_many_association: ->
     for association in @constructor.associations.many_to_many
-      function_name = @_to_table_name(association)
-      model_name    = @_to_model_name(association)
+      function_name = @to_table_name(association)
+      model_name    = @to_model_name(association)
       @[function_name] = (cb) ->
         model = Sequel.models[model_name]
         join = {}
@@ -66,11 +67,11 @@ class @Model
     @set_many_to_many_association() if @constructor.associations.many_to_many
 
   # @private
-  _to_model_name: (name) ->
+  to_model_name: (name) ->
     lingo.capitalize(lingo.en.singularize(name))
 
   # @private
-  _to_table_name: (name) ->
+  to_table_name: (name) ->
     lingo.en.pluralize(name).toLowerCase()
 
   # @private
