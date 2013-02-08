@@ -99,9 +99,9 @@ specified using foreign keys. You specify model associations via the
 many\_to\_one, one\_to\_one, one\_to\_many, and many\_to\_many class methods:
 
     class Post extends Sequel.Model
-      many\_to\_one 'author'
-      one\_to\_many 'comments'
-      many\_to\_many 'tags'
+      many_to_one 'author'
+      one_to_many 'comments'
+      many_to_many 'tags'
 
 The defined calls can be called directly on the created object:
 
