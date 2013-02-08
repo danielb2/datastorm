@@ -1,12 +1,51 @@
 lingo = require 'lingo'
 class @Model
-  @opts      = {}
+  @opts        = {}
+  @validations = {}
   constructor: (values) ->
-    @values = values
-    @new    = true
+    @values      = values
+    @new         = true
     @set_associations()
+    @errors      = {}
     for name, value of values
       @[name] = value
+
+  @validate: (field_name, cb) ->
+    @validations[field_name] ||= []
+    @validations[field_name].push cb
+
+  hasErrors: ->
+    errors = []
+    for error of @errors
+      return true
+    return false
+
+  validate: () ->
+    @errors = {}
+    for field of @values
+      @validate_field(field) if @hasOwnProperty field
+    !@hasErrors()
+
+  # @private
+  validate_field: (field_name) ->
+    value = @[field_name]
+    return unless @constructor.validations[field_name]
+    for func in @constructor.validations[field_name]
+      unless func
+        @errors[field_name] ||= []
+        @errors[field_name].push "No validation for fieldname `#{field_name}`"
+
+      unless value
+        @errors[field_name] ||= []
+        @errors[field_name].push "No value for fieldname `#{field_name}`"
+
+      unless func(@[field_name])
+        @errors[field_name] ||= []
+        @errors[field_name].push "Validation failed for for fieldname `#{field_name}`"
+
+
+    return func(@[field_name])
+
 
   row_func: (result) ->
     new @constructor result
