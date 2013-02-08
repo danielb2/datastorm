@@ -32,6 +32,9 @@ describe "Model", ->
   it "should limit", ->
     List.limit(5).sql().should.equal "SELECT * FROM `lists` LIMIT 5"
 
+  it "should limit with offset", ->
+    List.limit(5, 10).sql().should.equal "SELECT * FROM `lists` LIMIT 5 OFFSET 10"
+
   it "should select specific fields", ->
     List.select('name', 'flower').sql().should.equal "SELECT name,flower FROM `lists`"
 

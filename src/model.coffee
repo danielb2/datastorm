@@ -101,8 +101,8 @@ class @Model
     dataset = @_dataset().group(group)
     @clone({dataset: dataset})
 
-  @limit: (limit) ->
-    dataset = @_dataset().limit(limit)
+  @limit: (limit, offset=null) ->
+    dataset = @_dataset().limit(limit, offset)
     @clone({dataset: dataset})
 
   modified: ->
