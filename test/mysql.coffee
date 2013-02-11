@@ -15,6 +15,7 @@ class Sequel.models.Item extends Sequel.Model
 class Sequel.models.Tag extends Sequel.Model
   @db = DB
   @many_to_many 'lists'
+  @validate 'name', (val) ->
 
 describe "Mysql", ->
   beforeEach (done) ->
