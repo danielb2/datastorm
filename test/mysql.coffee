@@ -4,16 +4,16 @@ expect = require('chai').expect
 
 DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
 
-class Sequel.models.List extends Sequel.Model
+class List extends Sequel.Model
   @db = DB
   @one_to_many 'items'
   @many_to_many 'tags'
 
-class Sequel.models.Item extends Sequel.Model
+class Item extends Sequel.Model
   @db = DB
   @many_to_one 'list'
 
-class Sequel.models.Tag extends Sequel.Model
+class Tag extends Sequel.Model
   @db = DB
   @many_to_many 'lists'
   @validate 'name', (val, done) ->
@@ -22,6 +22,10 @@ class Sequel.models.Tag extends Sequel.Model
       @ran = true
       done()
 
+Sequel.models =
+  Tag: Tag
+  List: List
+  Item: Item
 
 
 describe "Mysql", ->
@@ -146,6 +150,12 @@ describe "Mysql", ->
           result.should.equal item
           Sequel.models.Item.find 42, (err, result) ->
             done()
+
+    it "should create an item", (done) ->
+      Item.create {name: 'created item', list_id: 2}, (err, item) ->
+        Item.find item.id, (err, result) ->
+          result.name.should.equal 'created item'
+          done()
 
     it "should destroy a fetched item", (done) ->
       Sequel.models.Item.find 42, (err, item) ->
