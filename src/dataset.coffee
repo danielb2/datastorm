@@ -104,11 +104,14 @@ class @dataset
       return cb err if err
       cb err, result.affectedRows, fields
 
+  # @private
   _stringify_field_names: (array) ->
     return JSON.stringify(array).replace(/"/g,'`','gi').replace(/[\[\]]/g,'')
+  # @private
   _stringify_field_values: (array) ->
     return JSON.stringify(array).replace(/"/g,'\'','gi').replace(/[\[\]]/g,'')
 
+  # @private
   _build_where: ->
     whereClause = []
     for k, v of @clause.where
@@ -123,6 +126,7 @@ class @dataset
         whereClause.push k
     return whereClause
 
+  # @private
   common_sql: (type) ->
     whereClause = @_build_where()
     sql = ''
