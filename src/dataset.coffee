@@ -99,6 +99,11 @@ class @dataset
       return cb err if err
       cb err, result.insertId, fields
 
+  delete: (cb) ->
+    @query @delete_sql(), (err, result, fields) =>
+      return cb err if err
+      cb err, result.affectedRows, fields
+
   update: (data, cb) ->
     @query @update_sql(data), (err, result, fields) =>
       return cb err if err
@@ -150,7 +155,6 @@ class @dataset
     sql += " SET " + setClause.join(', ')
     sql += @common_sql('update')
     return sql
-
 
   delete_sql: ->
     sql = "DELETE "

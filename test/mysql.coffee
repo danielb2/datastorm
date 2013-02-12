@@ -140,6 +140,13 @@ describe "Mysql", ->
             result.name.should.equal 'flower'
             done()
 
+    it "should delete a fetched item", (done) ->
+      Sequel.models.Item.find 42, (err, item) ->
+        item.delete (err, result) ->
+          result.should.equal item
+          Sequel.models.Item.find 42, (err, result) ->
+            done()
+
     # SELECT `tags`.* FROM `tags` INNER JOIN `lists_tags` ON ((`lists_tags`.`tag_id` = `tags`.`id`) AND (`lists_tags`.`list_id` = 51))
     it "should link to records through many_to_many relationship", (done) ->
       Sequel.models.List.find 51,  (err, list) ->
