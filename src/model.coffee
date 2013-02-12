@@ -42,11 +42,12 @@ class @Model
     @errors = new Errors
     parallelize = []
     for field of @constructor.validations
-      defer = (field) =>
-        to_parallel = (done) =>
-          @validate_field field, done
-        parallelize.push to_parallel
-      defer(field)
+      if @new or @has_column_changed(field)
+        defer = (field) =>
+          to_parallel = (done) =>
+            @validate_field field, done
+          parallelize.push to_parallel
+        defer(field)
 
     async.parallel parallelize, (err, results) =>
       return cb null if @errors.length == 0
@@ -166,8 +167,13 @@ class @Model
   modified: ->
     return @new || !(@changed_columns().length == 0)
 
+  has_column_changed: (field) ->
+    for column in @changed_columns()
+      return true if column == field
+    return false
+
   changed_columns: ->
-    return @new if @new # columns will have changed if it's a new obj
+    return @values if @new # columns will have changed if it's a new obj
     changed = []
     for k, v of @values
       changed.push k if @[k] != v
@@ -182,15 +188,19 @@ class @Model
       validate = (callbk) =>
         @validate callbk
       async.series {validate: validate, insert: insert}, (err, results) =>
-        # console.log err
-        # console.log results
         return cb err if err
         return cb err, results.insert[0]
     else
-      updates = {}
-      for change in @changed_columns()
-        updates[change] = @values[change] = @[change]
-      @constructor.update updates, cb
+      validate = (callbk) =>
+        @validate callbk
+      update = (callbk) =>
+        updates = {}
+        for change in @changed_columns()
+          updates[change] = @values[change] = @[change]
+        @constructor.update updates, callbk
+      async.series {validate: validate, update: update}, (err, results) =>
+        return cb err if err
+        return cb err, results.update[0]
     @
 
 

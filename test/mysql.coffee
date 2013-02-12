@@ -1,4 +1,5 @@
 require "./_helper"
+expect = require('chai').expect
 
 
 DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
@@ -18,7 +19,9 @@ class Sequel.models.Tag extends Sequel.Model
   @validate 'name', (val, done) ->
     @constructor.where(name: val).first (err, result) =>
       @errors.add val, 'must be unique' if result
+      @ran = true
       done()
+
 
 
 describe "Mysql", ->
@@ -35,6 +38,23 @@ describe "Mysql", ->
           'This should not be null.'.should.equal ''
         err.should.equal 'Validations failed. Check obj.errors to see the errors.'
         done()
+
+    it "should not run validations for fields which have not changed", (done) ->
+      Sequel.models.Tag.first (err, tag) ->
+        expect(tag.ran).to.be.undefined
+        tag.id = 3
+        tag.save (err, numChangedRows) ->
+          expect(tag.ran).to.be.undefined
+          done()
+
+
+    it "should only run validations for fields which have changed", (done) ->
+      Sequel.models.Tag.first (err, tag) ->
+        tag.name = 'something'
+        expect(tag.ran).to.be.undefined
+        tag.save (err, numChangedRows) ->
+          tag.ran.should.equal true
+          done()
 
     it "should the first record as a model", (done) ->
       Sequel.models.List.first (err, list) ->
