@@ -59,19 +59,18 @@ class @Model
 
   # @private
   set_one_to_many_association: ->
-    for association_options in @constructor.associations.one_to_many
-      defer = (association_options) =>
-        association = association_options.association
-        function_name = @to_table_name(association)
-        model_name    = @to_model_name(association)
-        @[function_name] = =>
-          model = Sequel.models[model_name]
-          key_link = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
-          where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
-          dataset = model.dataset().
-            where(where_str)
-          dataset
-      defer(association_options)
+    for association in @constructor.associations.one_to_many
+      @[association.function_name] = @build_one_to_many_function(association)
+
+  # @private
+  build_one_to_many_function: (association) ->
+    return ->
+      model = Sequel.models[association.name]
+      key_link = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
+      where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
+      dataset = model.dataset().
+        where(where_str)
+      dataset
 
   # @private
   set_many_to_one_association: ->
@@ -219,10 +218,11 @@ class @Model
     @associations ||= {}
     if @associations.many_to_one then @associations.many_to_one.push model_name else @associations.many_to_one = [model_name]
 
-  @one_to_many: (association, options = {}) ->
-    options.association = lingo.capitalize(lingo.en.singularize(association))
+  @one_to_many: (name, association = {}) ->
+    association.name   = lingo.capitalize(lingo.en.singularize(name))
+    association.function_name = name
     @associations ||= {}
-    if @associations.one_to_many then @associations.one_to_many.push options else @associations.one_to_many =  [options]
+    if @associations.one_to_many then @associations.one_to_many.push association else @associations.one_to_many =  [association]
 
   @many_to_many: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
