@@ -4,6 +4,9 @@ require "./_helper"
 DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
 class List extends Sequel.Model
   @db = DB
+  @one_to_many 'items'
+  @one_to_many 'tags', {key: 'label_id'}
+
   @validate 'age', (value, done) ->
     # console.log 'this has to be executed ' + value
     @errors.add value, 'Not of type number' unless typeof value == 'number'
@@ -17,6 +20,18 @@ class List extends Sequel.Model
 describe "Model", ->
   db = null
   beforeEach (done) ->
+    done()
+
+  it "should get the correct one_to_many sql", (done) ->
+    list = new List
+    list.id = 3
+    list.items().sql().should.equal "SELECT * FROM `items` WHERE (`items`.`list_id` = 3)"
+    done()
+
+  it "should get the correct one_to_many sql using keys", (done) ->
+    list = new List
+    list.id = 3
+    list.tags().sql().should.equal "SELECT * FROM `tags` WHERE (`tags`.`label_id` = 3)"
     done()
 
   it "should get the correct table name", ->
