@@ -73,7 +73,6 @@ class @dataset
   select: (fields...) ->
     return @clone({select: fields})
 
-
   # @private
   _build_join: ->
     join_query = "INNER JOIN `#{@clause.join.table_name}`"
@@ -100,34 +99,24 @@ class @dataset
       return cb err if err
       cb err, result.insertId, fields
 
-  update_sql: (data) ->
-    setClause = []
-    for k, v of data
-      field_name_str  = @_stringify_field_names([k])
-      field_value_str = @_stringify_field_values([v])
-      setClause.push "#{field_name_str} = #{field_value_str}"
-
-    whereClause = @_build_where()
-    sql = "UPDATE `#{@tableName}`"
-    sql += " " + @_build_join() if @clause.join
-    sql += " SET " + setClause.join(', ')
-    sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
-    sql += " ORDER BY `#{@clause.order}`" if @clause.order
-    sql += " LIMIT #{@clause.limit}" if @clause.limit
-    sql += " OFFSET #{@clause.offset}" if @clause.offset
-
-    return sql
+  delete: (cb) ->
+    @query @delete_sql(), (err, result, fields) =>
+      return cb err if err
+      cb err, result.affectedRows, fields
 
   update: (data, cb) ->
     @query @update_sql(data), (err, result, fields) =>
       return cb err if err
       cb err, result.affectedRows, fields
 
+  # @private
   _stringify_field_names: (array) ->
     return JSON.stringify(array).replace(/"/g,'`','gi').replace(/[\[\]]/g,'')
+  # @private
   _stringify_field_values: (array) ->
     return JSON.stringify(array).replace(/"/g,'\'','gi').replace(/[\[\]]/g,'')
 
+  # @private
   _build_where: ->
     whereClause = []
     for k, v of @clause.where
@@ -142,18 +131,44 @@ class @dataset
         whereClause.push k
     return whereClause
 
-  sql: ->
+  # @private
+  common_sql: (type) ->
     whereClause = @_build_where()
-    sql = "SELECT "
-    sql += if @clause.select then @clause.select.join(', ') else '*'
-    # sql += if @clause.select then ("`#{x}`" for x in @clause.select).join(', ') else '*'
-    sql += " FROM `#{@tableName}`"
-    sql += " " + @_build_join() if @clause.join
+    sql = ''
+    sql += " " + @_build_join() if @clause.join and type != 'update'
     sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
     sql += " ORDER BY `#{@clause.order}`" if @clause.order
-    sql += " GROUP BY `#{@clause.group}`" if @clause.group
+    sql += " GROUP BY `#{@clause.group}`" if @clause.group and type != 'update'
     sql += " LIMIT #{@clause.limit}" if @clause.limit
     sql += " OFFSET #{@clause.offset}" if @clause.offset
+    return sql
+
+  update_sql: (data) ->
+    setClause = []
+    for k, v of data
+      field_name_str  = @_stringify_field_names([k])
+      field_value_str = @_stringify_field_values([v])
+      setClause.push "#{field_name_str} = #{field_value_str}"
+
+    sql = "UPDATE `#{@tableName}`"
+    sql += " " + @_build_join() if @clause.join
+    sql += " SET " + setClause.join(', ')
+    sql += @common_sql('update')
+    return sql
+
+  delete_sql: ->
+    sql = "DELETE "
+    sql += if @clause.select then @clause.select.join(', ') else
+      if @clause.join then "`#{@tableName}`" else '*'
+    sql += " FROM `#{@tableName}`"
+    sql += @common_sql()
+    return sql
+
+  sql: ->
+    sql = "SELECT "
+    sql += if @clause.select then @clause.select.join(', ') else '*'
+    sql += " FROM `#{@tableName}`"
+    sql += @common_sql()
     return sql
 
 module.exports = @dataset

@@ -166,6 +166,15 @@ class @Model
       changed.push k if @[k] != v
     return changed
 
+  delete: (cb) ->
+    @constructor.where(id: @id).delete (err, affectedRows, fields) =>
+      cb err, @
+
+  destroy: (cb) ->
+    console.log "Warning: hooks are not implemented yet."
+    @delete(cb)
+
+
   save: (cb) ->
     return cb(false) unless @modified()
     validate = (callbk) =>
@@ -254,6 +263,18 @@ class @Model
 
   @update_sql: (data) ->
     @_dataset().update_sql(data)
+
+  @delete_sql: (data) ->
+    @_dataset().delete_sql(data)
+
+  @delete: (cb) ->
+    @_dataset().delete cb
+
+  @destroy: (cb) ->
+    console.log "Warning: hooks are not implemented yet."
+    @delete(cb)
+
+
   @update: (data, cb) ->
     @_dataset().update(data, cb)
 
