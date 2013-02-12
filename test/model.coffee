@@ -4,12 +4,15 @@ require "./_helper"
 DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
 class List extends Sequel.Model
   @db = DB
-  @validate 'age', (value) ->
+  @validate 'age', (value, done) ->
+    # console.log 'this has to be executed ' + value
     @errors.add value, 'Not of type number' unless typeof value == 'number'
+    done()
 
-  @validate 'first_name', (value) ->
+  @validate 'first_name', (value, done) ->
+    # console.log 'first_name'
     @errors.add value, 'We dont allow Debra' if value == 'debra'
-
+    done()
 
 describe "Model", ->
   db = null
@@ -69,13 +72,20 @@ describe "Model", ->
     character = new Character title: 'foo'
     character.new.should.equal true
 
-  it "should validate fields", ->
+  it "should validate fields", (done) ->
     list = new List age: 23, last_name: 'morgan', first_name: 'dexter'
-    list.validate().should.equal true
+    list.validate (err) ->
+      toString.call(err).should.equal '[object Null]'
+      done()
 
-  it "should fail validate fields with bad value", ->
+
+  it "should fail validate fields with bad value", (done) ->
     list = new List age: 'twenty three', last_name: 'morgan', first_name: 'dexter'
-    list.validate().should.equal false
+    list.validate (err) ->
+      if toString.call(err) ==  '[object Null]'
+        'This should not be null.'.should.equal ''
+      err.should.equal 'Validations failed. Check obj.errors to see the errors.'
+      done()
 
   it "should not save on failed validate", (done) ->
     list = new List age: 'twenty three', last_name: 'morgan', first_name: 'debra'

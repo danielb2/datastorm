@@ -1,5 +1,5 @@
 lingo = require 'lingo'
-
+async = require 'async'
 class Errors
   constructor: ->
     @errors = {}
@@ -14,12 +14,7 @@ class Errors
       errors.push error
     errors.length
 
-  hasErrors: ->
-    @length > 0
-
 class @Model
-  @opts        = {}
-  @validations = {}
   constructor: (values) ->
     @values      = values
     @new         = true
@@ -29,30 +24,35 @@ class @Model
       @[name] = value
 
   @validate: (field_name, cb) ->
+    @validations ||= {}
     @validations[field_name] ||= []
     @validations[field_name].push cb
 
-  hasErrors: ->
-    errors = []
-    for error of @errors
-      return true
-    return false
-
-  validate: () ->
+  # run all the validations in parallel and collect errors at the end.
+  validate: (cb) ->
     @errors = new Errors
-    for field of @values
-      @validate_field(field) if @hasOwnProperty field
-    @errors.length == 0
+    parallelize = []
+    for field of @constructor.validations
+      if @new or @has_column_changed(field)
+        defer = (field) =>
+          parallelize.push (done) => @validate_field field, done
+        defer(field)
+
+    async.parallel parallelize, (err, results) =>
+      return cb null if @errors.length == 0
+      return cb 'Validations failed. Check obj.errors to see the errors.'
 
   # @private
-  validate_field: (field_name) ->
-    value = @[field_name]
+  # Each field can have multiple validations. Each is run in parallel
+  validate_field: (field_name, cb) ->
     return unless @constructor.validations[field_name]
-    for func in @constructor.validations[field_name]
-      unless func
+    parallelize = []
+    for validation_function in @constructor.validations[field_name]
+      unless validation_function
         @errors.add field_name, 'No validation function was specified'
 
-      func.bind(@) @[field_name]
+      parallelize.push (done) => validation_function.bind(@) @[field_name], done
+    async.parallel parallelize, cb
 
   row_func: (result) ->
     new @constructor result
@@ -123,6 +123,7 @@ class @Model
   # @private
   # create or use existing dataset
   @_dataset: ->
+    @opts ||= {}
     if @opts['dataset']
       @opts['dataset']
     else
@@ -155,8 +156,13 @@ class @Model
   modified: ->
     return @new || !(@changed_columns().length == 0)
 
+  has_column_changed: (field) ->
+    for column in @changed_columns()
+      return true if column == field
+    return false
+
   changed_columns: ->
-    return @new if @new # columns will have changed if it's a new obj
+    return @values if @new # columns will have changed if it's a new obj
     changed = []
     for k, v of @values
       changed.push k if @[k] != v
@@ -164,14 +170,22 @@ class @Model
 
   save: (cb) ->
     return cb(false) unless @modified()
-    return cb 'Validations failed. Check obj.errors to see the errors.' unless @validate()
+    validate = (callbk) =>
+      @validate callbk
+    command = null
     if @new
-      @constructor.insert @values, cb
+      command = (callbk) =>
+        @constructor.insert @values, callbk
     else
-      updates = {}
-      for change in @changed_columns()
-        updates[change] = @values[change] = @[change]
-      @constructor.update updates, cb
+      command = (callbk) =>
+        updates = {}
+        for change in @changed_columns()
+          updates[change] = @values[change] = @[change]
+        @constructor.update updates, callbk
+
+    async.series {validate: validate, command: command}, (err, results) =>
+      return cb err if err
+      return cb err, results.command[0]
     @
 
 
@@ -235,6 +249,7 @@ class @Model
 
   @insert_sql: (data) ->
     @dataset().insert_sql(data)
+
   @insert: (data, cb) ->
     @dataset().insert(data, cb)
 
