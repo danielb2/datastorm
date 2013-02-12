@@ -123,13 +123,13 @@ class @dataset
         whereClause.push k
     return whereClause
 
-  common_sql: ->
+  common_sql: (type) ->
     whereClause = @_build_where()
     sql = ''
-    sql += " " + @_build_join() if @clause.join
+    sql += " " + @_build_join() if @clause.join and type != 'update'
     sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
     sql += " ORDER BY `#{@clause.order}`" if @clause.order
-    sql += " GROUP BY `#{@clause.group}`" if @clause.group
+    sql += " GROUP BY `#{@clause.group}`" if @clause.group and type != 'update'
     sql += " LIMIT #{@clause.limit}" if @clause.limit
     sql += " OFFSET #{@clause.offset}" if @clause.offset
     return sql
@@ -141,28 +141,22 @@ class @dataset
       field_value_str = @_stringify_field_values([v])
       setClause.push "#{field_name_str} = #{field_value_str}"
 
-    whereClause = @_build_where()
     sql = "UPDATE `#{@tableName}`"
     sql += " " + @_build_join() if @clause.join
     sql += " SET " + setClause.join(', ')
-    sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
-    sql += " ORDER BY `#{@clause.order}`" if @clause.order
-    sql += " LIMIT #{@clause.limit}" if @clause.limit
-    sql += " OFFSET #{@clause.offset}" if @clause.offset
-
+    sql += @common_sql('update')
     return sql
 
 
   delete_sql: ->
     sql = "DELETE "
-    sql += if @clause.select then @clause.select.join(', ')else
+    sql += if @clause.select then @clause.select.join(', ') else
       if @clause.join then "`#{@tableName}`" else '*'
     sql += " FROM `#{@tableName}`"
     sql += @common_sql()
     return sql
 
   sql: ->
-    whereClause = @_build_where()
     sql = "SELECT "
     sql += if @clause.select then @clause.select.join(', ') else '*'
     sql += " FROM `#{@tableName}`"
