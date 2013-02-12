@@ -38,15 +38,14 @@ class @Model
       return true
     return false
 
+  # run all the validations in parallel and collect errors at the end.
   validate: (cb) ->
     @errors = new Errors
     parallelize = []
     for field of @constructor.validations
       if @new or @has_column_changed(field)
         defer = (field) =>
-          to_parallel = (done) =>
-            @validate_field field, done
-          parallelize.push to_parallel
+          parallelize.push (done) => @validate_field field, done
         defer(field)
 
     async.parallel parallelize, (err, results) =>
@@ -54,6 +53,7 @@ class @Model
       return cb 'Validations failed. Check obj.errors to see the errors.'
 
   # @private
+  # Each field can have multiple validations. Each is run in parallel
   validate_field: (field_name, cb) ->
     return unless @constructor.validations[field_name]
     parallelize = []
@@ -61,9 +61,7 @@ class @Model
       unless validation_function
         @errors.add field_name, 'No validation function was specified'
 
-      to_parallel = (done) =>
-        validation_function.bind(@) @[field_name], done
-      parallelize.push to_parallel
+      parallelize.push (done) => validation_function.bind(@) @[field_name], done
     async.parallel parallelize, cb
 
   row_func: (result) ->
@@ -181,26 +179,22 @@ class @Model
 
   save: (cb) ->
     return cb(false) unless @modified()
-    # return cb 'Validations failed. Check obj.errors to see the errors.' unless @validate()
+    validate = (callbk) =>
+      @validate callbk
+    command = null
     if @new
-      insert = (callbk) =>
+      command = (callbk) =>
         @constructor.insert @values, callbk
-      validate = (callbk) =>
-        @validate callbk
-      async.series {validate: validate, insert: insert}, (err, results) =>
-        return cb err if err
-        return cb err, results.insert[0]
     else
-      validate = (callbk) =>
-        @validate callbk
-      update = (callbk) =>
+      command = (callbk) =>
         updates = {}
         for change in @changed_columns()
           updates[change] = @values[change] = @[change]
         @constructor.update updates, callbk
-      async.series {validate: validate, update: update}, (err, results) =>
-        return cb err if err
-        return cb err, results.update[0]
+
+    async.series {validate: validate, command: command}, (err, results) =>
+      return cb err if err
+      return cb err, results.command[0]
     @
 
 
