@@ -18,7 +18,6 @@ class Errors
     @length > 0
 
 class @Model
-  @opts        = {}
   constructor: (values) ->
     @values      = values
     @new         = true
@@ -133,6 +132,7 @@ class @Model
   # @private
   # create or use existing dataset
   @_dataset: ->
+    @opts ||= {}
     if @opts['dataset']
       @opts['dataset']
     else
