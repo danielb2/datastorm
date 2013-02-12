@@ -1,6 +1,6 @@
 {
   "name": "sequel",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Database toolkit for node.js inspired by Sequel (http://sequel.rubyforge.org/",
   "main": "index.js",
   "scripts": {
