@@ -28,6 +28,12 @@ describe "Model", ->
     list.items().sql().should.equal "SELECT * FROM `items` WHERE (`items`.`list_id` = 3)"
     done()
 
+  it "should get the correct one_to_many sql using keys", (done) ->
+    list = new List
+    list.id = 3
+    list.tags().sql().should.equal "SELECT * FROM `tags` WHERE (`tags`.`label_id` = 3)"
+    done()
+
   it "should get the correct table name", ->
     List.table_name().should.equal 'lists'
 

@@ -66,7 +66,7 @@ class @Model
   build_one_to_many_function: (association) ->
     return ->
       model = Sequel.models[association.name]
-      key_link = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
+      key_link = association.key || lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
       where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
       dataset = model.dataset().
         where(where_str)
