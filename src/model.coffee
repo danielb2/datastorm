@@ -60,15 +60,17 @@ class @Model
   # @private
   set_one_to_many_association: ->
     for association in @constructor.associations.one_to_many
-      function_name = @to_table_name(association)
-      model_name    = @to_model_name(association)
-      @[function_name] = =>
-        model = Sequel.models[model_name]
-        key_link = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
-        where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
-        dataset = model.dataset().
-          where(where_str)
-        dataset
+      defer = (association) =>
+        function_name = @to_table_name(association)
+        model_name    = @to_model_name(association)
+        @[function_name] = =>
+          model = Sequel.models[model_name]
+          key_link = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
+          where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
+          dataset = model.dataset().
+            where(where_str)
+          dataset
+      defer(association)
 
   # @private
   set_many_to_one_association: ->

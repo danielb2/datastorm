@@ -5,6 +5,7 @@ DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', databa
 class List extends Sequel.Model
   @db = DB
   @one_to_many 'items'
+  @one_to_many 'tags', {key: 'label_id'}
 
   @validate 'age', (value, done) ->
     # console.log 'this has to be executed ' + value
