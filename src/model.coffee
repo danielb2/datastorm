@@ -170,6 +170,10 @@ class @Model
     @constructor.where(id: @id).delete (err, affectedRows, fields) =>
       cb err, @
 
+  destroy: (cb) ->
+    console.log "Warning: hooks are not implemented yet."
+    @delete(cb)
+
 
   save: (cb) ->
     return cb(false) unless @modified()
@@ -265,6 +269,11 @@ class @Model
 
   @delete: (cb) ->
     @_dataset().delete cb
+
+  @destroy: (cb) ->
+    console.log "Warning: hooks are not implemented yet."
+    @delete(cb)
+
 
   @update: (data, cb) ->
     @_dataset().update(data, cb)
