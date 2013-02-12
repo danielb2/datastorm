@@ -254,6 +254,10 @@ class @Model
 
   @update_sql: (data) ->
     @_dataset().update_sql(data)
+
+  @delete_sql: (data) ->
+    @_dataset().delete_sql(data)
+
   @update: (data, cb) ->
     @_dataset().update(data, cb)
 

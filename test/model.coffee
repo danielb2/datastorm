@@ -81,6 +81,12 @@ describe "Model", ->
     Character.where(id: 3).update_sql({first_name: 'walter', last_name: 'bishop', age: 64}).should.
       equal "UPDATE `characters` SET `first_name` = 'walter', `last_name` = 'bishop', `age` = 64 WHERE id='3'"
 
+  it "should delete data for instance", ->
+    class Character extends Sequel.Model
+      @db = DB
+    Character.where(id: 3).delete_sql().should.
+      equal "DELETE * FROM `characters` WHERE id='3'"
+
   it "should return true if model instance is new", ->
     class Character extends Sequel.Model
       @db = DB
