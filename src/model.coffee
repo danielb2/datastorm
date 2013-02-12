@@ -43,8 +43,8 @@ class @Model
     parallelize = []
     for field of @constructor.validations
       defer = (field) =>
-        to_parallel = (callbk) =>
-          callbk null, @validate_field field, =>
+        to_parallel = (done) =>
+          @validate_field field, done
         parallelize.push to_parallel
       defer(field)
 
@@ -54,16 +54,14 @@ class @Model
 
   # @private
   validate_field: (field_name, cb) ->
-    value = @[field_name]
     return unless @constructor.validations[field_name]
     parallelize = []
-    for func in @constructor.validations[field_name]
-      unless func
+    for validation_function in @constructor.validations[field_name]
+      unless validation_function
         @errors.add field_name, 'No validation function was specified'
 
-      to_parallel = (cb) =>
-        func.bind(@) @[field_name]
-        cb null, func.bind(@) @[field_name]
+      to_parallel = (done) =>
+        validation_function.bind(@) @[field_name], done
       parallelize.push to_parallel
     async.parallel parallelize, cb
 
@@ -184,6 +182,8 @@ class @Model
       validate = (callbk) =>
         @validate callbk
       async.series {validate: validate, insert: insert}, (err, results) =>
+        # console.log err
+        # console.log results
         return cb err if err
         return cb err, results.insert[0]
     else

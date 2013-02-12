@@ -4,13 +4,15 @@ require "./_helper"
 DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
 class List extends Sequel.Model
   @db = DB
-  @validate 'age', (value) ->
+  @validate 'age', (value, done) ->
     # console.log 'this has to be executed ' + value
     @errors.add value, 'Not of type number' unless typeof value == 'number'
+    done()
 
-  @validate 'first_name', (value) ->
+  @validate 'first_name', (value, done) ->
     # console.log 'first_name'
     @errors.add value, 'We dont allow Debra' if value == 'debra'
+    done()
 
 describe "Model", ->
   db = null

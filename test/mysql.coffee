@@ -15,7 +15,11 @@ class Sequel.models.Item extends Sequel.Model
 class Sequel.models.Tag extends Sequel.Model
   @db = DB
   @many_to_many 'lists'
-  @validate 'name', (val) ->
+  @validate 'name', (val, done) ->
+    @constructor.where(name: val).first (err, result) =>
+      @errors.add val, 'must be unique' if result
+      done()
+
 
 describe "Mysql", ->
   beforeEach (done) ->
@@ -23,6 +27,15 @@ describe "Mysql", ->
     exec 'mysql -uroot sequel_test < test/sequel_test.sql', ->
       done()
   describe "Model", ->
+
+    it "should be able to validate uniqueness using callbacks for validation", (done) ->
+      item = new Sequel.models.Tag name: "wish"
+      item.save (err, result) ->
+        if toString.call(err) ==  '[object Null]'
+          'This should not be null.'.should.equal ''
+        err.should.equal 'Validations failed. Check obj.errors to see the errors.'
+        done()
+
     it "should the first record as a model", (done) ->
       Sequel.models.List.first (err, list) ->
         list.table_name().should.equal 'lists'
