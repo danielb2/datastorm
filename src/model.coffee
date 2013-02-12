@@ -59,8 +59,9 @@ class @Model
 
   # @private
   set_one_to_many_association: ->
-    for association in @constructor.associations.one_to_many
-      defer = (association) =>
+    for association_options in @constructor.associations.one_to_many
+      defer = (association_options) =>
+        association = association_options.association
         function_name = @to_table_name(association)
         model_name    = @to_model_name(association)
         @[function_name] = =>
@@ -70,7 +71,7 @@ class @Model
           dataset = model.dataset().
             where(where_str)
           dataset
-      defer(association)
+      defer(association_options)
 
   # @private
   set_many_to_one_association: ->
@@ -218,10 +219,10 @@ class @Model
     @associations ||= {}
     if @associations.many_to_one then @associations.many_to_one.push model_name else @associations.many_to_one = [model_name]
 
-  @one_to_many: (relation) ->
-    model_name = lingo.capitalize(lingo.en.singularize(relation))
+  @one_to_many: (association, options = {}) ->
+    options.association = lingo.capitalize(lingo.en.singularize(association))
     @associations ||= {}
-    if @associations.one_to_many then @associations.one_to_many.push model_name else @associations.one_to_many =  [model_name]
+    if @associations.one_to_many then @associations.one_to_many.push options else @associations.one_to_many =  [options]
 
   @many_to_many: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
