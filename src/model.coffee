@@ -23,6 +23,12 @@ class @Model
     for name, value of values
       @[name] = value
 
+  @create: (values, cb) ->
+    model = new @ values
+    model.save (err, id) ->
+      model.id = id
+      cb err, model
+
   @validate: (field_name, cb) ->
     @validations ||= {}
     @validations[field_name] ||= []
