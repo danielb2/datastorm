@@ -64,14 +64,10 @@ class @Model
       model_name    = @to_model_name(association)
       @[function_name] = =>
         model = Sequel.models[model_name]
-        join = {}
-        join['id'] = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
-        where = {}
-        where[@constructor.table_name() + '.id'] = @id
+        key_link = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
+        where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
         dataset = model.dataset().
-          join(@constructor.table_name(), join).
-          select(function_name + ".*").
-          where(where)
+          where(where_str)
         dataset
 
   # @private
