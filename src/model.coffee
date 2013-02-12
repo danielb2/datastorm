@@ -14,9 +14,6 @@ class Errors
       errors.push error
     errors.length
 
-  hasErrors: ->
-    @length > 0
-
 class @Model
   constructor: (values) ->
     @values      = values
@@ -30,12 +27,6 @@ class @Model
     @validations ||= {}
     @validations[field_name] ||= []
     @validations[field_name].push cb
-
-  hasErrors: ->
-    errors = []
-    for error of @errors
-      return true
-    return false
 
   # run all the validations in parallel and collect errors at the end.
   validate: (cb) ->
