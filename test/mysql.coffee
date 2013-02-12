@@ -1,4 +1,5 @@
 require "./_helper"
+expect = require('chai').expect
 
 
 DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
@@ -15,6 +16,13 @@ class Sequel.models.Item extends Sequel.Model
 class Sequel.models.Tag extends Sequel.Model
   @db = DB
   @many_to_many 'lists'
+  @validate 'name', (val, done) ->
+    @constructor.where(name: val).first (err, result) =>
+      @errors.add val, 'must be unique' if result
+      @ran = true
+      done()
+
+
 
 describe "Mysql", ->
   beforeEach (done) ->
@@ -22,6 +30,32 @@ describe "Mysql", ->
     exec 'mysql -uroot sequel_test < test/sequel_test.sql', ->
       done()
   describe "Model", ->
+
+    it "should be able to validate uniqueness using callbacks for validation", (done) ->
+      item = new Sequel.models.Tag name: "wish"
+      item.save (err, result) ->
+        if toString.call(err) ==  '[object Null]'
+          'This should not be null.'.should.equal ''
+        err.should.equal 'Validations failed. Check obj.errors to see the errors.'
+        done()
+
+    it "should not run validations for fields which have not changed", (done) ->
+      Sequel.models.Tag.first (err, tag) ->
+        expect(tag.ran).to.be.undefined
+        tag.id = 3
+        tag.save (err, numChangedRows) ->
+          expect(tag.ran).to.be.undefined
+          done()
+
+
+    it "should only run validations for fields which have changed", (done) ->
+      Sequel.models.Tag.first (err, tag) ->
+        tag.name = 'something'
+        expect(tag.ran).to.be.undefined
+        tag.save (err, numChangedRows) ->
+          tag.ran.should.equal true
+          done()
+
     it "should the first record as a model", (done) ->
       Sequel.models.List.first (err, list) ->
         list.table_name().should.equal 'lists'
@@ -91,6 +125,12 @@ describe "Mysql", ->
         result.should.equal 190
         done()
 
+    it "should behave well even if some values are bad", (done) ->
+      item = new Sequel.models.Item id: 190, flower: "theres no flower"
+      item.save (err, result) ->
+        err.should.exist
+        done()
+
     it "should update a fetched item", (done) ->
       Sequel.models.Item.find 42, (err, item) ->
         item.name = 'flower'
@@ -100,22 +140,38 @@ describe "Mysql", ->
             result.name.should.equal 'flower'
             done()
 
-    it.skip "should link to records through many_to_many relationship", (done) ->
-      Sequel.models.Item.find 42,  (err, item) ->
-        item.name.should.equal 'an item'
-        item.constructor.name.should.equal 'Item'
-        item.list (err, list) ->
-          list.constructor.name.should.equal 'List'
-          list.id.should.equal 51
-          list.name.should.equal 'a list'
-          done()
+    it "should delete a fetched item", (done) ->
+      Sequel.models.Item.find 42, (err, item) ->
+        item.delete (err, result) ->
+          result.should.equal item
+          Sequel.models.Item.find 42, (err, result) ->
+            done()
 
-  it "should return true if model instance has changed", (done) ->
-    Sequel.models.Item.find 42,  (err, item) ->
-      item.modified().should.equal false
-      item.name = 'walther smith'
-      item.modified().should.equal true
-      done()
+    it "should destroy a fetched item", (done) ->
+      Sequel.models.Item.find 42, (err, item) ->
+        item.destroy (err, result) ->
+          result.should.equal item
+          Sequel.models.Item.find 42, (err, result) ->
+            done()
+
+    # SELECT `tags`.* FROM `tags` INNER JOIN `lists_tags` ON ((`lists_tags`.`tag_id` = `tags`.`id`) AND (`lists_tags`.`list_id` = 51))
+    it "should link to records through many_to_many relationship", (done) ->
+      Sequel.models.List.find 51,  (err, list) ->
+        list.tags().all (err, tags) ->
+          tags[0].name.should.equal 'supplies'
+          tags[1].name.should.equal 'fun'
+          Sequel.models.Tag.find 1,  (err, tag) ->
+            tag.lists().all (err, lists) ->
+              lists[0].name.should.equal 'a list'
+              done()
+
+    it "should return true if model instance has changed", (done) ->
+      Sequel.models.Item.find 42,  (err, item) ->
+        item.modified().should.equal false
+        item.name = 'walther smith'
+        item.modified().should.equal true
+        done()
+
 
   describe "Dataset", ->
     it "should the first record", (done) ->
@@ -154,3 +210,8 @@ describe "Mysql", ->
           affected_rows.should.equal results.length
           done()
 
+    it "should behave well even if some values are bad", (done) ->
+      dataset = DB.ds('items')
+      dataset.insert {blah: 'inserted item'}, (err, row_id) ->
+        err.should.exist
+        done()

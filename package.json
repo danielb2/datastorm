@@ -1,6 +1,6 @@
 {
-  "name": "sequel-node",
-  "version": "0.1.0",
+  "name": "sequel",
+  "version": "0.4.0",
   "description": "Database toolkit for node.js inspired by Sequel (http://sequel.rubyforge.org/",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,7 @@
   "author": "Daniel Bretoi",
   "dependencies": {
     "coffee-script": "~1.4.0",
-    "lingo": "0.0.5"
+    "lingo": "0.0.5",
+    "async": "~0.2.5"
   }
 }

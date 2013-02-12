@@ -1,82 +1,127 @@
 lingo = require 'lingo'
+async = require 'async'
+class Errors
+  constructor: ->
+    @errors = {}
+
+  add: (name, msg) ->
+    @errors[name] || @errors[name] = []
+    @errors[name].push msg
+
+  @prototype.__defineGetter__ 'length', ->
+    errors = []
+    for error of @errors
+      errors.push error
+    errors.length
+
 class @Model
-  @relations = {}
-  @opts      = {}
   constructor: (values) ->
-    @values = values
-    @new    = true
-    @set_relations()
+    @values      = values
+    @new         = true
+    @set_associations()
+    @errors      = {}
     for name, value of values
       @[name] = value
+
+  @validate: (field_name, cb) ->
+    @validations ||= {}
+    @validations[field_name] ||= []
+    @validations[field_name].push cb
+
+  # run all the validations in parallel and collect errors at the end.
+  validate: (cb) ->
+    @errors = new Errors
+    parallelize = []
+    for field of @constructor.validations
+      if @new or @has_column_changed(field)
+        defer = (field) =>
+          parallelize.push (done) => @validate_field field, done
+        defer(field)
+
+    async.parallel parallelize, (err, results) =>
+      return cb null if @errors.length == 0
+      return cb 'Validations failed. Check obj.errors to see the errors.'
+
+  # @private
+  # Each field can have multiple validations. Each is run in parallel
+  validate_field: (field_name, cb) ->
+    return unless @constructor.validations[field_name]
+    parallelize = []
+    for validation_function in @constructor.validations[field_name]
+      unless validation_function
+        @errors.add field_name, 'No validation function was specified'
+
+      parallelize.push (done) => validation_function.bind(@) @[field_name], done
+    async.parallel parallelize, cb
 
   row_func: (result) ->
     new @constructor result
 
   # @private
   set_one_to_many_association: ->
-    for association in @constructor.relations.one_to_many
-      function_name = @_to_table_name(association)
-      model_name    = @_to_model_name(association)
-      @[function_name] = =>
+    for association in @constructor.associations.one_to_many
+      @[association.function_name] = @build_one_to_many_function(association)
+
+  # @private
+  build_one_to_many_function: (association) ->
+    return ->
+      model = Sequel.models[association.name]
+      key_link = association.key || lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
+      where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
+      dataset = model.dataset().
+        where(where_str)
+      dataset
+
+  # @private
+  set_many_to_one_association: ->
+    for association in @constructor.associations.many_to_one
+      model_name = @to_model_name(association)
+      function_name = model_name.toLowerCase()
+      @[function_name] = (cb) ->
         model = Sequel.models[model_name]
         join = {}
-        join['id'] = lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
+        join[function_name + '_id'] = 'id'
         where = {}
         where[@constructor.table_name() + '.id'] = @id
-        dataset = model.dataset().
-          join(@constructor.table_name(), join).
-          select(function_name + ".*").
+        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
+          where(where)
+        dataset.first cb
+
+  # @private
+  set_many_to_many_association: ->
+    for association in @constructor.associations.many_to_many
+      function_name = @to_table_name(association)
+      model_name    = @to_model_name(association)
+      @[function_name] = (cb) ->
+        model = Sequel.models[model_name]
+        join = {}
+        join[lingo.en.singularize(function_name) + '_id'] = 'id'
+        where = {}
+        where[lingo.en.singularize(@constructor.table_name()) + '_id'] = @id
+        join_table = [@constructor.table_name(), model.table_name()].sort().join('_')
+        dataset = model.dataset().select(model.table_name() + '.*').join(join_table, join).
           where(where)
         dataset
 
   # @private
-  set_many_to_one_association: ->
-    for relation in @constructor.relations.many_to_one
-      model_name = @_to_model_name(relation)
-      function_name = model_name.toLowerCase()
-      @[function_name] = (cb) ->
-        model = Sequel.models[model_name]
-        join = {}
-        join[function_name + '_id'] = 'id'
-        where = {}
-        where[@constructor.table_name() + '.id'] = @id
-        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
-          where(where)
-        dataset.first cb
-
-  set_many_to_many_association: ->
-    for relation in @constructor.relations.many_to_one
-      model_name = @_to_model_name(relation)
-      function_name = model_name.toLowerCase()
-      @[function_name] = (cb) ->
-        model = Sequel.models[model_name]
-        join = {}
-        join[function_name + '_id'] = 'id'
-        where = {}
-        where[@constructor.table_name() + '.id'] = @id
-        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
-          where(where)
-        dataset.first cb
+  set_associations: ->
+    return unless @constructor.associations
+    @set_one_to_many_association() if @constructor.associations.one_to_many
+    @set_many_to_one_association() if @constructor.associations.many_to_one
+    @set_many_to_many_association() if @constructor.associations.many_to_many
 
   # @private
-  set_relations: ->
-    @set_one_to_many_association() if @constructor.relations.one_to_many
-    @set_many_to_one_association() if @constructor.relations.many_to_one
-    @set_many_to_many_association() if @constructor.relations.many_to_many
-
-    # console.log @constructor.relations
-
-  # @private
-  _to_model_name: (name) ->
+  to_model_name: (name) ->
     lingo.capitalize(lingo.en.singularize(name))
 
   # @private
-  _to_table_name: (name) ->
+  to_table_name: (name) ->
     lingo.en.pluralize(name).toLowerCase()
 
   # @private
   # create or use existing dataset
   @_dataset: ->
+    @opts ||= {}
     if @opts['dataset']
       @opts['dataset']
     else
@@ -102,29 +147,52 @@ class @Model
     dataset = @_dataset().group(group)
     @clone({dataset: dataset})
 
-  @limit: (limit) ->
-    dataset = @_dataset().limit(limit)
+  @limit: (limit, offset=null) ->
+    dataset = @_dataset().limit(limit, offset)
     @clone({dataset: dataset})
 
   modified: ->
     return @new || !(@changed_columns().length == 0)
 
+  has_column_changed: (field) ->
+    for column in @changed_columns()
+      return true if column == field
+    return false
+
   changed_columns: ->
-    return @new if @new # columns will have changed if it's a new obj
+    return @values if @new # columns will have changed if it's a new obj
     changed = []
     for k, v of @values
       changed.push k if @[k] != v
     return changed
 
+  delete: (cb) ->
+    @constructor.where(id: @id).delete (err, affectedRows, fields) =>
+      cb err, @
+
+  destroy: (cb) ->
+    console.log "Warning: hooks are not implemented yet."
+    @delete(cb)
+
+
   save: (cb) ->
     return cb(false) unless @modified()
+    validate = (callbk) =>
+      @validate callbk
+    command = null
     if @new
-      @constructor.insert @values, cb
+      command = (callbk) =>
+        @constructor.insert @values, callbk
     else
-      updates = {}
-      for change in @changed_columns()
-        updates[change] = @values[change] = @[change]
-      @constructor.update updates, cb
+      command = (callbk) =>
+        updates = {}
+        for change in @changed_columns()
+          updates[change] = @values[change] = @[change]
+        @constructor.update updates, callbk
+
+    async.series {validate: validate, command: command}, (err, results) =>
+      return cb err if err
+      return cb err, results.command[0]
     @
 
 
@@ -156,19 +224,24 @@ class @Model
 
   @many_to_one: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
-    if @relations.many_to_one then @relations.many_to_one.push model_name else @relations.many_to_one = [model_name]
+    @associations ||= {}
+    if @associations.many_to_one then @associations.many_to_one.push model_name else @associations.many_to_one = [model_name]
 
-  @one_to_many: (relation) ->
-    model_name = lingo.capitalize(lingo.en.singularize(relation))
-    if @relations.one_to_many then @relations.one_to_many.push model_name else @relations.one_to_many =  [model_name]
+  @one_to_many: (name, association = {}) ->
+    association.name   = lingo.capitalize(lingo.en.singularize(name))
+    association.function_name = name
+    @associations ||= {}
+    if @associations.one_to_many then @associations.one_to_many.push association else @associations.one_to_many =  [association]
 
   @many_to_many: (relation) ->
     model_name = lingo.capitalize(lingo.en.singularize(relation))
-    if @relations.many_to_many then @relations.many_to_many.push model_name else @relations.many_to_many =  [model_name]
+    @associations ||= {}
+    if @associations.many_to_many then @associations.many_to_many.push model_name else @associations.many_to_many =  [model_name]
 
   # aliases for activerecord
-  @has_many   = @one_to_many
-  @belongs_to = @many_to_one
+  @has_many                = @one_to_many
+  @belongs_to              = @many_to_one
+  @has_and_belongs_to_many = @many_to_many
 
   @table_name: ->
     lingo.en.pluralize @name.toLowerCase()
@@ -184,11 +257,24 @@ class @Model
 
   @insert_sql: (data) ->
     @dataset().insert_sql(data)
+
   @insert: (data, cb) ->
     @dataset().insert(data, cb)
 
   @update_sql: (data) ->
     @_dataset().update_sql(data)
+
+  @delete_sql: (data) ->
+    @_dataset().delete_sql(data)
+
+  @delete: (cb) ->
+    @_dataset().delete cb
+
+  @destroy: (cb) ->
+    console.log "Warning: hooks are not implemented yet."
+    @delete(cb)
+
+
   @update: (data, cb) ->
     @_dataset().update(data, cb)
 

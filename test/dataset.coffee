@@ -1,69 +1,75 @@
 require "./_helper"
 
 describe "Dataset", ->
-  db = null
-  beforeEach (done) ->
-    db = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'classrooms_development'}
+  db = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'classrooms_development'}
+  dataset = db.ds('items')
+  beforeEach (done) -> 
     done()
 
   it "should do plain query", ->
-    dataset = db.ds('generic_items')
-    dataset.sql().should.equal "SELECT * FROM `generic_items`"
+    dataset.sql().should.equal "SELECT * FROM `items`"
 
   it "should limit", ->
-    dataset = db.ds('generic_items')
-    dataset.limit(3).sql().should.equal "SELECT * FROM `generic_items` LIMIT 3"
+    dataset.limit(3).sql().should.equal "SELECT * FROM `items` LIMIT 3"
+
+  it "should limit with offset", ->
+    dataset.limit(3, 10).sql().should.equal "SELECT * FROM `items` LIMIT 3 OFFSET 10"
+
+  it "should offset", ->
+    dataset.limit(null, 10).sql().should.equal "SELECT * FROM `items` OFFSET 10"
 
   it "should order", ->
-    dataset = db.ds('generic_items')
-    dataset.order('id asc').sql().should.equal "SELECT * FROM `generic_items` ORDER BY `id asc`"
+    dataset.order('id asc').sql().should.equal "SELECT * FROM `items` ORDER BY `id asc`"
 
   it "should group", ->
-    dataset = db.ds('generic_items')
-    dataset.group('name').sql().should.equal "SELECT * FROM `generic_items` GROUP BY `name`"
+    dataset.group('name').sql().should.equal "SELECT * FROM `items` GROUP BY `name`"
 
   it "should do simple filter", ->
-    dataset = db.ds('generic_items')
-    dataset.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM `generic_items` WHERE title='mountain dew'"
+    dataset.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM `items` WHERE title='mountain dew'"
 
   it "should filter multiple items", ->
-    dataset = db.ds('generic_items')
-    dataset.where({title: 'mountain dew', id: 123}).sql().should.equal "SELECT * FROM `generic_items` WHERE title='mountain dew' AND id='123'"
+    dataset.where({title: 'mountain dew', id: 123}).sql().should.equal "SELECT * FROM `items` WHERE title='mountain dew' AND id='123'"
 
   it "be chainable", ->
-    dataset = db.ds('generic_items')
-    dataset.where({title: 'mountain dew'}).where({id: 123}).sql().should.equal "SELECT * FROM `generic_items` WHERE title='mountain dew' AND id='123'"
+    dataset.where({title: 'mountain dew'}).where({id: 123}).sql().should.equal "SELECT * FROM `items` WHERE title='mountain dew' AND id='123'"
 
   it "be stateless chainable", ->
-    dataset = db.ds('generic_items')
     dataset.where({id: 123})
-    dataset.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM `generic_items` WHERE title='mountain dew'"
+    dataset.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM `items` WHERE title='mountain dew'"
 
   it "should use in for where array", ->
-    dataset = db.ds('generic_items')
-    dataset.where({id: [1,2,3]}).sql().should.equal "SELECT * FROM `generic_items` WHERE `id` IN(1,2,3)"
+    dataset.where({id: [1,2,3]}).sql().should.equal "SELECT * FROM `items` WHERE `id` IN(1,2,3)"
 
   it "should use in for where string array", ->
-    dataset = db.ds('generic_items')
-    dataset.where({name: ['one','two']}).sql().should.equal "SELECT * FROM `generic_items` WHERE `name` IN('one','two')"
+    dataset.where({name: ['one','two']}).sql().should.equal "SELECT * FROM `items` WHERE `name` IN('one','two')"
 
   it "should be able to define our own WHERE", ->
-    dataset = db.ds('generic_items')
-    dataset.where("created_at='whatever'").sql().should.equal "SELECT * FROM `generic_items` WHERE created_at='whatever'"
+    dataset.where("created_at='whatever'").sql().should.equal "SELECT * FROM `items` WHERE created_at='whatever'"
 
   it "should be able to define our own WHERE with chains", ->
-    dataset = db.ds('generic_items')
-    dataset.where({title: 'mountain dew'}).where("created_at='whatever'").sql().should.equal "SELECT * FROM `generic_items` WHERE title='mountain dew' AND created_at='whatever'"
+    dataset.where({title: 'mountain dew'}).where("created_at='whatever'").sql().should.equal "SELECT * FROM `items` WHERE title='mountain dew' AND created_at='whatever'"
 
   it "should join two tables with ON clause", ->
-    dataset = db.ds('items')
     dataset.join('order_items', {item_id: 'id'}).where({order_id: 1234}).sql().should.
       equal "SELECT * FROM `items` INNER JOIN `order_items` ON (`order_items`.`item_id`=`items`.`id`) WHERE order_id='1234'"
 
   it "should straight join two tables", ->
-    dataset = db.ds('items')
     dataset.join('order_items').sql().should.
       equal "SELECT * FROM `items` INNER JOIN `order_items`"
+
+  it.skip "should chain joins tables", ->
+    dataset = db.ds('lists')
+    dataset.join('items', ).join('tags').sql().should.
+      equal "SELECT * FROM `lists` INNER JOIN `items` INNER JOIN `tags`"
+
+  it "should delete", ->
+    dataset.delete_sql().should.equal 'DELETE * FROM `items`'
+
+  it "should delete join", ->
+    dataset.join('flowers').delete_sql().should.equal 'DELETE `items` FROM `items` INNER JOIN `flowers`'
+
+  it "should update join", ->
+    dataset.join('flowers').update_sql().should.equal 'UPDATE `items` INNER JOIN `flowers` SET '
 
   it "should allow to modify select", ->
     dataset = db.ds('posts')
@@ -80,16 +86,11 @@ describe "Dataset", ->
       equal "UPDATE `movies` INNER JOIN `characters` SET `name` = 'peter' WHERE name='walter'"
 
   it.skip "should create table", (done) ->
-    db.create_table 'generic_items', (handle) ->
+    db.create_table 'items', (handle) ->
       handle.add 'primary_key', 'id'
       handle.add 'name', 'String'
 
-  it.skip "should do things", (done) ->
-    dataset = db['generic_items']
-    dataset.insert({name: "Mountain Dew"})
-
   it.skip "should iterate over recrods", ->
-    dataset = db['generic_items']
     dataset.each (record) ->
       console.log record
 
