@@ -22,10 +22,18 @@ class Tag extends Sequel.Model
       @ran = true
       done()
 
+class Actor extends Sequel.Model
+  @db = DB
+
+  after_create: ->
+    super
+    @was_saved = true
+
 Sequel.models =
   Tag: Tag
   List: List
   Item: Item
+  Actor: Actor
 
 
 describe "Mysql", ->
@@ -34,6 +42,13 @@ describe "Mysql", ->
     exec 'mysql -uroot sequel_test < test/sequel_test.sql', ->
       done()
   describe "Model", ->
+
+    it "should call the after create after a new record has been created", (done) ->
+      character = new Actor first_name: 'dexter', last_name: 'morgan', age: 34
+      character.save (err, result) ->
+        character.was_saved.should.equal true
+        done()
+
 
     it "should be able to validate uniqueness using callbacks for validation", (done) ->
       item = new Sequel.models.Tag name: "wish"

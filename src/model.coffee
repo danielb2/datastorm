@@ -180,6 +180,8 @@ class @Model
     console.log "Warning: hooks are not implemented yet."
     @delete(cb)
 
+  after_create: ->
+    @new = false
 
   save: (cb) ->
     return cb(false) unless @modified()
@@ -188,7 +190,9 @@ class @Model
     command = null
     if @new
       command = (callbk) =>
-        @constructor.insert @values, callbk
+        @constructor.insert @values, (err, insertId, fields) =>
+          @after_create()
+          callbk err, insertId, fields
     else
       command = (callbk) =>
         updates = {}
