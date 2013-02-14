@@ -1,7 +1,7 @@
 require "./_helper"
 
 describe "Dataset", ->
-  db = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'classrooms_development'}
+  db = new DataStorm.mysql {username: 'root', password: '', host: 'localhost', database: 'classrooms_development'}
   dataset = db.ds('items')
   beforeEach (done) -> 
     done()

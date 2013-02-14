@@ -9,6 +9,6 @@ class @mysql
       database: settings.database || ''
 
   ds: (name) ->
-    new Sequel.dataset(@connection, name)
+    new DataStorm.dataset(@connection, name)
 
 module.exports = @mysql

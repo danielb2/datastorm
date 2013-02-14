@@ -1,8 +1,8 @@
 require "./_helper"
 
 
-DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
-class List extends Sequel.Model
+DB = new DataStorm.mysql {username: 'root', password: '', host: 'localhost', database: 'datastorm_test'}
+class List extends DataStorm.Model
   @db = DB
   @one_to_many 'items'
   @one_to_many 'tags', {key: 'label_id'}
@@ -70,25 +70,25 @@ describe "Model", ->
     List.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM `lists` WHERE title='mountain dew'"
 
   it "should insert data for instance", ->
-    class Character extends Sequel.Model
+    class Character extends DataStorm.Model
       @db = DB
     Character.insert_sql({first_name: 'walter', last_name: 'bishop', age: 64}).should.
       equal "INSERT INTO `characters` (`first_name`,`last_name`,`age`) VALUES ('walter','bishop',64)"
 
   it "should update data for instance", ->
-    class Character extends Sequel.Model
+    class Character extends DataStorm.Model
       @db = DB
     Character.where(id: 3).update_sql({first_name: 'walter', last_name: 'bishop', age: 64}).should.
       equal "UPDATE `characters` SET `first_name` = 'walter', `last_name` = 'bishop', `age` = 64 WHERE id='3'"
 
   it "should delete data for instance", ->
-    class Character extends Sequel.Model
+    class Character extends DataStorm.Model
       @db = DB
     Character.where(id: 3).delete_sql().should.
       equal "DELETE * FROM `characters` WHERE id='3'"
 
   it "should return true if model instance is new", ->
-    class Character extends Sequel.Model
+    class Character extends DataStorm.Model
       @db = DB
     character = new Character title: 'foo'
     character.new.should.equal true

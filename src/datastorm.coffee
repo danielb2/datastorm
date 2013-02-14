@@ -1,4 +1,4 @@
-Sequel = {
+DataStorm = {
   mysql: require './mysql'
   Model: require './model'
   models: {}
@@ -7,4 +7,4 @@ Sequel = {
 }
 
 
-module.exports = Sequel
+module.exports = DataStorm
