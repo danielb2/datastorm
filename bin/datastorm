@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+DataStorm = require('../index')
+repl = require('repl')
+
+console.log("You have the DataStorm object at your disposal. Use it wisely.\n")
+repl.start({
+  prompt: "datastorm-" + DataStorm.VERSION + "> ",
+  useColors: true
+
+  })
