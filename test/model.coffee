@@ -2,6 +2,7 @@ require "./_helper"
 
 
 DB = new DataStorm.mysql {username: 'root', password: '', host: 'localhost', database: 'datastorm_test'}
+
 class List extends DataStorm.Model
   @db = DB
   @one_to_many 'items'
@@ -17,10 +18,32 @@ class List extends DataStorm.Model
     @errors.add value, 'We dont allow Debra' if value == 'debra'
     done()
 
+class Tag extends DataStorm.Model
+  @db = DB
+class Item extends DataStorm.Model
+  @db = DB
+
+class GenericItem extends DataStorm.Model
+  @db = DB
+
+DataStorm.models =
+  List: List
+  Item: Item
+  Tag: Tag
+  GenericItem: GenericItem
+
 describe "Model", ->
   db = null
   beforeEach (done) ->
     done()
+
+  it "should ge tthe correct tablename for camelCased models",  ->
+    GenericItem.table_name().should.equal 'generic_items'
+
+  it "should get the correct model name for table name", ->
+    gi = new GenericItem
+    console.log gi.to_model_name('generic_items')
+    gi.to_model_name('generic_items').should.equal 'GenericItem'
 
   it "should get the correct one_to_many sql", (done) ->
     list = new List

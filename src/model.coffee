@@ -118,11 +118,11 @@ class @Model
 
   # @private
   to_model_name: (name) ->
-    lingo.capitalize(lingo.en.singularize(name))
+    lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
 
   # @private
   to_table_name: (name) ->
-    lingo.en.pluralize(name).toLowerCase()
+    lingo.underscore lingo.en.pluralize(name)
 
   # @private
   # create or use existing dataset
@@ -254,7 +254,7 @@ class @Model
   @has_and_belongs_to_many = @many_to_many
 
   @table_name: ->
-    lingo.en.pluralize @name.toLowerCase()
+    lingo.underscore lingo.en.pluralize @name
 
   @find_query: (id) ->
     @_dataset().where(id: id)
