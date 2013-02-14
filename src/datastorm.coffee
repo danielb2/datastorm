@@ -1,8 +1,8 @@
 DataStorm = {}
+DataStorm.models  = {}
 DataStorm.dataset = require './dataset'
 DataStorm.mysql   = require('./mysql')(DataStorm)
-DataStorm.models  = {}
 DataStorm.Model   = require('./model')(DataStorm)
-DataStorm.VERSION = require './version'
+DataStorm.VERSION = require('../package.json').version
 
 module.exports = DataStorm
