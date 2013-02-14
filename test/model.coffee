@@ -42,7 +42,6 @@ describe "Model", ->
 
   it "should get the correct model name for table name", ->
     gi = new GenericItem
-    console.log gi.to_model_name('generic_items')
     gi.to_model_name('generic_items').should.equal 'GenericItem'
 
   it "should get the correct one_to_many sql", (done) ->
