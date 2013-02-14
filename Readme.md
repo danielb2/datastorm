@@ -1,13 +1,13 @@
-Inspired by [Sequel] for ruby, sequel-node aims to be a database toolkit for
+Inspired by [Sequel] for ruby, DataStorm aims to be a database toolkit for
 [node]
 
-* Sequel-node currently has adapters for mysql
+* DataStorm currently has adapters for mysql
 
 # A short example #
 
-    var Sequel = require('sequel');
+    var DataStorm = require('datastorm');
 
-    DB = new Sequel.mysql({username: 'root', password: '', host: 'localhost', database: 'sequel_test'})
+    DB = new DataStorm.mysql({username: 'root', password: '', host: 'localhost', database: 'datastorm_test'})
 
     items = DB.ds('items') // create a dataset
 
@@ -16,11 +16,11 @@ Inspired by [Sequel] for ruby, sequel-node aims to be a database toolkit for
 
 # An Introduction #
 
-Like [Sequel], Sequel-node uses the concept of datasets to retrieve data. A Dataset
+Like [Sequel], DataStorm uses the concept of datasets to retrieve data. A Dataset
 object encapsulates an SQL query and supports chainability, letting you fetch
 data using a convenient JavaScript DSL that is both concise and flexible.
 
-Sequel uses the same concepts of datasets to retrieve data. A Dataset object
+DataStorm uses the same concepts of datasets to retrieve data. A Dataset object
 encapsulates an SQL query and supports chainability, letting you fetch data
 using a convenient JavaScript DSL that is both concise and flexible.
 
@@ -31,28 +31,28 @@ is equivalent to
     SELECT COUNT(*) as count FROM `countries` WHERE region='Middle East'
 
 
-# Sequel Models #
+# DataStorm Models #
 A model class wraps a dataset, and an instance of that class wraps a single
 record in the dataset.
 
 Model classes are defined as regular Ruby classes inheriting from
-Sequel.Model
+DataStorm.Model
 
 Using coffee script syntax (use http://js2coffee.org/ to translate) for sake
-of abbriviation:
+of abbreviation:
 
-    DB = new Sequel.mysql {username: 'root', password: '', host: 'localhost', database: 'sequel_test'}
+    DB = new DataStorm.mysql {username: 'root', password: '', host: 'localhost', database: 'datastorm_test'}
 
-    class Post extends Sequel.Model
+    class Post extends DataStorm.Model
       @db = DB
 
-Sequel model classes assume that the table name is an underscored plural of
+DataStorm model classes assume that the table name is an underscored plural of
 the class name:
 
     Post.table_name() //=> :posts
 
 ## Model instances ##
-Model instances are identified by a primary key. Sequel currently only uses
+Model instances are identified by a primary key. DataStorm currently only uses
 'id' for primary key.
 
     Post.find 123, (err, post) ->
@@ -98,7 +98,7 @@ that reflect relationships between tables in the database, which are usually
 specified using foreign keys. You specify model associations via the
 many\_to\_one, one\_to\_one, one\_to\_many, and many\_to\_many class methods:
 
-    class Post extends Sequel.Model
+    class Post extends DataStorm.Model
       many_to_one 'author'
       one_to_many 'comments'
       many_to_many 'tags'
@@ -117,7 +117,7 @@ isn't valid, you should add a error message for that attribute to the model
 object's errors. If an object has any errors added by the validate method,
 save will return an error.
 
-    class Post extends Sequel.Model
+    class Post extends DataStorm.Model
       @validate 'name', (name) ->
         @errors.add name, "cant be bob" if name == 'bob'
 

@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.5.28, for osx10.7 (i386)
 --
--- Host: localhost    Database: sequel_test
+-- Host: localhost    Database: datastorm_test
 -- ------------------------------------------------------
 -- Server version	5.5.28
 

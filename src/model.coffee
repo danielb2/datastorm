@@ -71,7 +71,7 @@ class @Model
   # @private
   build_one_to_many_function: (association) ->
     return ->
-      model = Sequel.models[association.name]
+      model = DataStorm.models[association.name]
       key_link = association.key || lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
       where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
       dataset = model.dataset().
@@ -84,7 +84,7 @@ class @Model
       model_name = @to_model_name(association)
       function_name = model_name.toLowerCase()
       @[function_name] = (cb) ->
-        model = Sequel.models[model_name]
+        model = DataStorm.models[model_name]
         join = {}
         join[function_name + '_id'] = 'id'
         where = {}
@@ -99,7 +99,7 @@ class @Model
       function_name = @to_table_name(association)
       model_name    = @to_model_name(association)
       @[function_name] = (cb) ->
-        model = Sequel.models[model_name]
+        model = DataStorm.models[model_name]
         join = {}
         join[lingo.en.singularize(function_name) + '_id'] = 'id'
         where = {}

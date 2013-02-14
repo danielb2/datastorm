@@ -1,2 +1,2 @@
 require('coffee-script');
-module.exports = require('./src/sequel');
+module.exports = require('./src/datastorm');
