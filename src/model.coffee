@@ -4,15 +4,15 @@ async = require 'async'
 module.exports = (DataStorm) ->
   class Errors
     constructor: ->
-      @errors = {}
 
     add: (name, msg) ->
-      @errors[name] || @errors[name] = []
-      @errors[name].push msg
+      @[name] || @[name] = []
+      @[name].push msg
 
     @prototype.__defineGetter__ 'length', ->
       errors = []
-      for error of @errors
+      for error of @
+        continue unless @hasOwnProperty error
         errors.push error
       errors.length
 
@@ -59,7 +59,7 @@ module.exports = (DataStorm) ->
         unless validation_function
           @errors.add field_name, 'No validation function was specified'
 
-        parallelize.push (done) => validation_function.bind(@) @[field_name], done
+        parallelize.push (done) => validation_function.bind(@) field_name, @[field_name], done
       async.parallel parallelize, cb
 
     row_func: (result) ->

@@ -8,12 +8,12 @@ class List extends DataStorm.Model
   @one_to_many 'items'
   @one_to_many 'tags', {key: 'label_id'}
 
-  @validate 'age', (value, done) ->
+  @validate 'age', (name, value, done) ->
     # console.log 'this has to be executed ' + value
     @errors.add value, 'Not of type number' unless typeof value == 'number'
     done()
 
-  @validate 'first_name', (value, done) ->
+  @validate 'first_name', (name, value, done) ->
     # console.log 'first_name'
     @errors.add value, 'We dont allow Debra' if value == 'debra'
     done()
