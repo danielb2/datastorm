@@ -3,7 +3,7 @@ integer = (name, value, done) ->
   done()
 
 unique = (name, value, done) ->
-  @constructor.where(name: val).first (err, result) =>
+  @constructor.where(name: value).first (err, result) =>
     @errors.add name, 'is already taken' if result
     done()
 

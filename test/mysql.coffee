@@ -240,3 +240,13 @@ describe "Mysql", ->
       dataset.insert {blah: 'inserted item'}, (err, row_id) ->
         err.should.exist
         done()
+
+  describe "Model Validation", ->
+    it "should validate uniqueness", (done) ->
+      class Tag extends DataStorm.Model
+        @db = DB
+        @validate 'name', DataStorm.validation.unique
+      tag = new Tag name: "wish"
+      tag.validate (err, finished) ->
+        JSON.stringify(tag.errors).should.equal '{"name":["is already taken"]}'
+        done()
