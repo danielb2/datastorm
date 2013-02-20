@@ -103,6 +103,10 @@ describe "Model", ->
     Character.where(id: 3).update_sql({first_name: 'walter', last_name: 'bishop', age: 64}).should.
       equal "UPDATE `characters` SET `first_name` = 'walter', `last_name` = 'bishop', `age` = 64 WHERE id='3'"
 
+  it "should do a fulltext query", ->
+    Item.where(name: 'keanu').full_text_search(['name','title'], 'matrix').sql().should.
+      equal "SELECT * FROM `items` WHERE name='keanu' AND (MATCH (`name`,`title`) AGAINST ('matrix'))"
+
   it "should delete data for instance", ->
     class Character extends DataStorm.Model
       @db = DB
