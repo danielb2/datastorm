@@ -1,6 +1,6 @@
 {
   "name": "datastorm",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Database toolkit for node.js inspired by Sequel (http://sequel.rubyforge.org/",
   "main": "index.js",
   "scripts": {
