@@ -152,6 +152,10 @@ module.exports = (DataStorm) ->
       dataset = @_dataset().order(order)
       @clone({dataset: dataset})
 
+    @full_text_search: (fields, query) ->
+      dataset = @_dataset().full_text_search(fields, query)
+      @clone({dataset: dataset})
+
     @group: (group) ->
       dataset = @_dataset().group(group)
       @clone({dataset: dataset})
