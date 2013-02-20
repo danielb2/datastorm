@@ -41,11 +41,17 @@ class @dataset
     new_obj = @clone({limit: limit, offset: offset})
     return new_obj
 
+  full_text_search: (fields, query) ->
+    return @clone({full_text_search: {fields: fields, query: query}})
+
   order: (order) ->
     return @clone({order: order})
 
   group: (group) ->
     return @clone({group: group})
+
+  paginate: (page, record_count) ->
+    return @clone({paginate: {page: page, record_count: record_count}})
 
   join: (table_name, conditions) ->
     return @clone({join: {table_name: table_name, conditions: conditions}})
@@ -72,6 +78,14 @@ class @dataset
 
   select: (fields...) ->
     return @clone({select: fields})
+
+  # @private
+  _build_full_text_search: ->
+    return null unless @clause.full_text_search
+    params = @_stringify_field_names @clause.full_text_search.fields
+    query = @_stringify_field_values [@clause.full_text_search.query]
+    "(MATCH (#{params}) AGAINST (#{query}))"
+
 
   # @private
   _build_join: ->
@@ -129,7 +143,24 @@ class @dataset
     if @clause.where_strings
       for k in @clause.where_strings
         whereClause.push k
+
+    whereClause.push fts if fts = @_build_full_text_search()
     return whereClause
+
+  # @private
+  _build_limit: ->
+    sql = ''
+    if @clause.paginate
+      if @clause.limit
+        throw new Error '`paginate`: You cannot paginate a dataset that already has a limit (Datastorm:Error)'
+
+      @clause.limit = @clause.paginate.record_count
+      @clause.offset = ( @clause.paginate.page - 1 ) * @clause.limit
+
+    sql += " LIMIT #{@clause.limit}" if @clause.limit
+    sql += " OFFSET #{@clause.offset}" if ( @clause.offset != undefined and @clause.offset != null )
+    return null if sql.length == 0
+    return sql
 
   # @private
   common_sql: (type) ->
@@ -139,8 +170,10 @@ class @dataset
     sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
     sql += " ORDER BY `#{@clause.order}`" if @clause.order
     sql += " GROUP BY `#{@clause.group}`" if @clause.group and type != 'update'
-    sql += " LIMIT #{@clause.limit}" if @clause.limit
-    sql += " OFFSET #{@clause.offset}" if @clause.offset
+
+    sql += limit if limit = @_build_limit()
+    # sql += " LIMIT #{@clause.limit}" if @clause.limit
+    # sql += " OFFSET #{@clause.offset}" if @clause.offset
     return sql
 
   update_sql: (data) ->

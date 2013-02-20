@@ -21,7 +21,6 @@ version_bump = (type) ->
   new_version = [major,minor,patch].join('.')
   data['version'] = new_version
 
-  fs.writeFileSync('src/version.coffee', "module.exports = '#{new_version}'")
   fs.writeFileSync('package.json', JSON.stringify data, '', 2)
 
   console.log "old version #{version}"

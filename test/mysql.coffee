@@ -16,9 +16,9 @@ class Item extends DataStorm.Model
 class Tag extends DataStorm.Model
   @db = DB
   @many_to_many 'lists'
-  @validate 'name', (val, done) ->
+  @validate 'name', (name, val, done) ->
     @constructor.where(name: val).first (err, result) =>
-      @errors.add val, 'must be unique' if result
+      @errors.add name, 'must be unique' if result
       @ran = true
       done()
 
@@ -239,4 +239,14 @@ describe "Mysql", ->
       dataset = DB.ds('items')
       dataset.insert {blah: 'inserted item'}, (err, row_id) ->
         err.should.exist
+        done()
+
+  describe "Model Validation", ->
+    it "should validate uniqueness", (done) ->
+      class Tag extends DataStorm.Model
+        @db = DB
+        @validate 'name', DataStorm.validation.unique
+      tag = new Tag name: "wish"
+      tag.validate (err, finished) ->
+        JSON.stringify(tag.errors).should.equal '{"name":["is already taken"]}'
         done()
