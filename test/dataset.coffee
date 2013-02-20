@@ -20,8 +20,11 @@ describe "Dataset", ->
       equal "SELECT * FROM `items` WHERE name='coton de tulear' LIMIT 10 OFFSET 10"
 
   it "should not paginate something with a limit", ->
-    dataset.where(name: 'coton de tulear').paginate(1,10).sql().should.
-      equal "SELECT * FROM `items` WHERE name='coton de tulear' LIMIT 10 OFFSET 0"
+    paginate = ->
+      dataset.where(name: 'coton de tulear').limit(10).paginate(1,10).sql().should.
+        equal "SELECT * FROM `items` WHERE name='coton de tulear' LIMIT 10 OFFSET 0"
+    paginate.should.Throw(Error)
+
 
   it "should limit", ->
     dataset.limit(3).sql().should.equal "SELECT * FROM `items` LIMIT 3"

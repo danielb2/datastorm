@@ -152,7 +152,7 @@ class @dataset
     sql = ''
     if @clause.paginate
       if @clause.limit
-        throw '`paginate`: You cannot paginate a dataset that already has a limit (Datastorm:Error)'
+        throw new Error '`paginate`: You cannot paginate a dataset that already has a limit (Datastorm:Error)'
 
       @clause.limit = @clause.paginate.record_count
       @clause.offset = ( @clause.paginate.page - 1 ) * @clause.limit
