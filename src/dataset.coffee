@@ -41,6 +41,9 @@ class @dataset
     new_obj = @clone({limit: limit, offset: offset})
     return new_obj
 
+  full_text_search: (fields, query) ->
+    return @clone({full_text_search: {fields: fields, query: query}})
+
   order: (order) ->
     return @clone({order: order})
 
@@ -72,6 +75,14 @@ class @dataset
 
   select: (fields...) ->
     return @clone({select: fields})
+
+  # @private
+  _build_full_text_search: ->
+    return null unless @clause.full_text_search
+    params = @_stringify_field_names @clause.full_text_search.fields
+    query = @_stringify_field_values [@clause.full_text_search.query]
+    "(MATCH (#{params}) AGAINST (#{query}))"
+
 
   # @private
   _build_join: ->
@@ -129,6 +140,8 @@ class @dataset
     if @clause.where_strings
       for k in @clause.where_strings
         whereClause.push k
+
+    whereClause.push fts if fts = @_build_full_text_search()
     return whereClause
 
   # @private

@@ -6,6 +6,10 @@ describe "Dataset", ->
   beforeEach (done) -> 
     done()
 
+  it "should do a fulltext query", ->
+    dataset.where(name: 'keanu').full_text_search(['name','title'], 'matrix').sql().should.
+      equal "SELECT * FROM `items` WHERE name='keanu' AND (MATCH (`name`,`title`) AGAINST ('matrix'))"
+
   it "should do plain query", ->
     dataset.sql().should.equal "SELECT * FROM `items`"
 
