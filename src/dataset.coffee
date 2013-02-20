@@ -50,6 +50,9 @@ class @dataset
   group: (group) ->
     return @clone({group: group})
 
+  paginate: (page, record_count) ->
+    return @clone({paginate: {page: page, record_count: record_count}})
+
   join: (table_name, conditions) ->
     return @clone({join: {table_name: table_name, conditions: conditions}})
 
@@ -145,6 +148,21 @@ class @dataset
     return whereClause
 
   # @private
+  _build_limit: ->
+    sql = ''
+    if @clause.paginate
+      if @clause.limit
+        throw '`paginate`: You cannot paginate a dataset that already has a limit (Datastorm:Error)'
+
+      @clause.limit = @clause.paginate.record_count
+      @clause.offset = ( @clause.paginate.page - 1 ) * @clause.limit
+
+    sql += " LIMIT #{@clause.limit}" if @clause.limit
+    sql += " OFFSET #{@clause.offset}" if ( @clause.offset != undefined and @clause.offset != null )
+    return null if sql.length == 0
+    return sql
+
+  # @private
   common_sql: (type) ->
     whereClause = @_build_where()
     sql = ''
@@ -152,8 +170,10 @@ class @dataset
     sql += " WHERE " + whereClause.join(' AND ') if whereClause.length > 0
     sql += " ORDER BY `#{@clause.order}`" if @clause.order
     sql += " GROUP BY `#{@clause.group}`" if @clause.group and type != 'update'
-    sql += " LIMIT #{@clause.limit}" if @clause.limit
-    sql += " OFFSET #{@clause.offset}" if @clause.offset
+
+    sql += limit if limit = @_build_limit()
+    # sql += " LIMIT #{@clause.limit}" if @clause.limit
+    # sql += " OFFSET #{@clause.offset}" if @clause.offset
     return sql
 
   update_sql: (data) ->
