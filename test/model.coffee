@@ -107,6 +107,12 @@ describe "Model", ->
     Item.where(name: 'keanu').full_text_search(['name','title'], 'matrix').sql().should.
       equal "SELECT * FROM `items` WHERE name='keanu' AND (MATCH (`name`,`title`) AGAINST ('matrix'))"
 
+  it "should paginate", ->
+    Item.where(name: 'coton de tulear').paginate(1,10).sql().should.
+      equal "SELECT * FROM `items` WHERE name='coton de tulear' LIMIT 10 OFFSET 0"
+    Item.where(name: 'coton de tulear').paginate(2,10).sql().should.
+      equal "SELECT * FROM `items` WHERE name='coton de tulear' LIMIT 10 OFFSET 10"
+
   it "should delete data for instance", ->
     class Character extends DataStorm.Model
       @db = DB

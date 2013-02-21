@@ -148,6 +148,10 @@ module.exports = (DataStorm) ->
       dataset = @_dataset().where(conditions)
       @clone({dataset: dataset})
 
+    @paginate: (page, record_count) ->
+      dataset = @_dataset().paginate(page, record_count)
+      @clone({dataset: dataset})
+
     @order: (order) ->
       dataset = @_dataset().order(order)
       @clone({dataset: dataset})
