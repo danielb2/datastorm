@@ -277,10 +277,10 @@ module.exports = (DataStorm) ->
       @find_query(id).first(cb)
 
     @insert_sql: (data) ->
-      @dataset().insert_sql(data)
+      @_dataset().insert_sql(data)
 
     @insert: (data, cb) ->
-      @dataset().insert(data, cb)
+      @_dataset().insert(data, cb)
 
     @update_sql: (data) ->
       @_dataset().update_sql(data)
@@ -290,6 +290,12 @@ module.exports = (DataStorm) ->
 
     @delete: (cb) ->
       @_dataset().delete cb
+
+    @truncate: (cb) ->
+      @_dataset().truncate cb
+
+    @execute: (sql, cb) ->
+      @_dataset().execute sql, cb
 
     @destroy: (cb) ->
       console.log "Warning: hooks are not implemented yet."
