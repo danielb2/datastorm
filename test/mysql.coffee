@@ -43,6 +43,18 @@ describe "Mysql", ->
       done()
   describe "Model", ->
 
+    it "should truncate table", (done) ->
+      Item.truncate (err) ->
+        Item.all (err, items) ->
+          items.length.should.equal 0
+          done()
+
+    it "should execute arbitrary command", (done) ->
+      Item.execute "TRuncATE `items`", (err) ->
+        Item.all (err, items) ->
+          items.length.should.equal 0
+          done()
+
     it "should call the after create after a new record has been created", (done) ->
       character = new Actor first_name: 'dexter', last_name: 'morgan', age: 34
       character.save (err, result) ->
