@@ -123,6 +123,14 @@ class @dataset
       return cb err if err
       cb err, result.affectedRows, fields
 
+  truncate: (cb) ->
+    @query "TRUNCATE `#{@tableName}`", (err, result) =>
+      return cb err if err
+      cb err, result.affectedRows
+
+  execute: (sql, cb) ->
+    @query sql, cb
+
   # @private
   _stringify_field_names: (array) ->
     return JSON.stringify(array).replace(/"/g,'`','gi').replace(/[\[\]]/g,'')

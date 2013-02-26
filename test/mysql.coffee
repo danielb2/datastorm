@@ -241,6 +241,20 @@ describe "Mysql", ->
         err.should.exist
         done()
 
+    it "should truncate table", (done) ->
+      dataset = DB.ds('items')
+      dataset.truncate (err) ->
+        dataset.all (err, items, fields) ->
+          items.length.should.equal 0
+          done()
+
+    it "should execute arbitrary command", (done) ->
+      dataset = DB.ds('items')
+      dataset.execute "TRuncATE `items`", (err) ->
+        dataset.all (err, items, fields) ->
+          items.length.should.equal 0
+          done()
+
   describe "Model Validation", ->
     it "should validate uniqueness", (done) ->
       class Tag extends DataStorm.Model
