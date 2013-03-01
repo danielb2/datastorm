@@ -101,18 +101,14 @@ module.exports = (DataStorm) ->
     # @private
     set_many_to_many_association: ->
       for association in @constructor.associations.many_to_many
-        function_name = @to_table_name(association.name)
-        model_name    = @to_model_name(association.name)
-        @[function_name] = @build_many_to_many_function(association.name)
+        @[association.function_name] = @build_many_to_many_function(association)
 
     # @private
     build_many_to_many_function: (association) ->
       return ->
-        function_name = @to_table_name(association)
-        model_name    = @to_model_name(association)
-        model = DataStorm.models[model_name]
+        model = DataStorm.models[association.name]
         join = {}
-        join[lingo.en.singularize(function_name) + '_id'] = 'id'
+        join[lingo.en.singularize(association.function_name) + '_id'] = 'id'
         where = {}
         where[lingo.en.singularize(@constructor.table_name()) + '_id'] = @id
         join_table = [@constructor.table_name(), model.table_name()].sort().join('_')
@@ -126,14 +122,6 @@ module.exports = (DataStorm) ->
       @set_one_to_many_association() if @constructor.associations.one_to_many
       @set_many_to_one_association() if @constructor.associations.many_to_one
       @set_many_to_many_association() if @constructor.associations.many_to_many
-
-    # @private
-    to_model_name: (name) ->
-      lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
-
-    # @private
-    to_table_name: (name) ->
-      lingo.underscore lingo.en.pluralize(name)
 
     # @private
     # create or use existing dataset
@@ -265,6 +253,7 @@ module.exports = (DataStorm) ->
 
     @many_to_many: (name, association = {}) ->
       association.name   = lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
+      association.function_name  = lingo.underscore name
       @associations ||= {}
       if @associations.many_to_many then @associations.many_to_many.push association else @associations.many_to_many =  [association]
 
