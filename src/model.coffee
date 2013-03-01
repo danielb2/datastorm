@@ -83,49 +83,45 @@ module.exports = (DataStorm) ->
     # @private
     set_many_to_one_association: ->
       for association in @constructor.associations.many_to_one
-        model_name = @to_model_name(association)
-        function_name = model_name.toLowerCase()
-        @[function_name] = (cb) ->
-          model = DataStorm.models[model_name]
-          join = {}
-          join[function_name + '_id'] = 'id'
-          where = {}
-          where[@constructor.table_name() + '.id'] = @id
-          dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
-            where(where)
-          dataset.first cb
+        @[association.function_name] = @build_many_to_one_function(association)
+
+    # @private
+    build_many_to_one_function: (association) ->
+      return (cb) ->
+        model = DataStorm.models[association.name]
+        join = {}
+        join[association.function_name + '_id'] = 'id'
+        where = {}
+        where[@constructor.table_name() + '.id'] = @id
+        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
+          where(where)
+        dataset.first cb
+
 
     # @private
     set_many_to_many_association: ->
       for association in @constructor.associations.many_to_many
-        function_name = @to_table_name(association)
-        model_name    = @to_model_name(association)
-        @[function_name] = (cb) ->
-          model = DataStorm.models[model_name]
-          join = {}
-          join[lingo.en.singularize(function_name) + '_id'] = 'id'
-          where = {}
-          where[lingo.en.singularize(@constructor.table_name()) + '_id'] = @id
-          join_table = [@constructor.table_name(), model.table_name()].sort().join('_')
-          dataset = model.dataset().select(model.table_name() + '.*').join(join_table, join).
-            where(where)
-          dataset
+        @[association.function_name] = @build_many_to_many_function(association)
+
+    # @private
+    build_many_to_many_function: (association) ->
+      return ->
+        model = DataStorm.models[association.name]
+        join = {}
+        join[lingo.en.singularize(association.function_name) + '_id'] = 'id'
+        where = {}
+        where[lingo.en.singularize(@constructor.table_name()) + '_id'] = @id
+        join_table = [@constructor.table_name(), model.table_name()].sort().join('_')
+        dataset = model.dataset().select(model.table_name() + '.*').join(join_table, join).
+          where(where)
+        dataset
 
     # @private
     set_associations: ->
-
       return unless @constructor.associations
       @set_one_to_many_association() if @constructor.associations.one_to_many
       @set_many_to_one_association() if @constructor.associations.many_to_one
       @set_many_to_many_association() if @constructor.associations.many_to_many
-
-    # @private
-    to_model_name: (name) ->
-      lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
-
-    # @private
-    to_table_name: (name) ->
-      lingo.underscore lingo.en.pluralize(name)
 
     # @private
     # create or use existing dataset
@@ -243,21 +239,26 @@ module.exports = (DataStorm) ->
     table_name: ->
       @constructor.table_name()
 
-    @many_to_one: (relation) ->
-      model_name = lingo.capitalize(lingo.en.singularize(relation))
+    @many_to_one: (name, association = {}) ->
+      association = @_extend_association(name, association)
       @associations ||= {}
-      if @associations.many_to_one then @associations.many_to_one.push model_name else @associations.many_to_one = [model_name]
+      if @associations.many_to_one then @associations.many_to_one.push association else @associations.many_to_one = [association]
 
     @one_to_many: (name, association = {}) ->
-      association.name   = lingo.capitalize(lingo.en.singularize(name))
-      association.function_name = name
+      association = @_extend_association(name, association)
       @associations ||= {}
       if @associations.one_to_many then @associations.one_to_many.push association else @associations.one_to_many =  [association]
 
-    @many_to_many: (relation) ->
-      model_name = lingo.capitalize(lingo.en.singularize(relation))
+    @many_to_many: (name, association = {}) ->
+      association = @_extend_association(name, association)
       @associations ||= {}
-      if @associations.many_to_many then @associations.many_to_many.push model_name else @associations.many_to_many =  [model_name]
+      if @associations.many_to_many then @associations.many_to_many.push association else @associations.many_to_many =  [association]
+
+    # @private
+    @_extend_association: (name,association) ->
+      association.name   = lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
+      association.function_name = name.toLowerCase()
+      return association
 
     # aliases for activerecord
     @has_many                = @one_to_many
