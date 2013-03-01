@@ -152,8 +152,8 @@ describe "Model", ->
     mock_db = new DataStorm.mock
     class Song extends DataStorm.Model
       @db = mock_db
-      @belongs_to 'album'
-      @belongs_to 'artist'
+      @many_to_one 'album'
+      @many_to_one 'artist'
 
     class Album extends DataStorm.Model
       @db = mock_db
