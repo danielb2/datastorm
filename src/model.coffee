@@ -240,22 +240,25 @@ module.exports = (DataStorm) ->
       @constructor.table_name()
 
     @many_to_one: (name, association = {}) ->
-      association.name   = lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
-      association.function_name = association.name.toLowerCase()
+      association = @_extend_association(name, association)
       @associations ||= {}
       if @associations.many_to_one then @associations.many_to_one.push association else @associations.many_to_one = [association]
 
     @one_to_many: (name, association = {}) ->
-      association.name   = lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
-      association.function_name = name
+      association = @_extend_association(name, association)
       @associations ||= {}
       if @associations.one_to_many then @associations.one_to_many.push association else @associations.one_to_many =  [association]
 
     @many_to_many: (name, association = {}) ->
-      association.name   = lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
-      association.function_name  = lingo.underscore name
+      association = @_extend_association(name, association)
       @associations ||= {}
       if @associations.many_to_many then @associations.many_to_many.push association else @associations.many_to_many =  [association]
+
+    # @private
+    @_extend_association: (name,association) ->
+      association.name   = lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
+      association.function_name = name.toLowerCase()
+      return association
 
     # aliases for activerecord
     @has_many                = @one_to_many
