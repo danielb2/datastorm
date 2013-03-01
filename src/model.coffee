@@ -107,16 +107,21 @@ module.exports = (DataStorm) ->
       for association in @constructor.associations.many_to_many
         function_name = @to_table_name(association)
         model_name    = @to_model_name(association)
-        @[function_name] = (cb) ->
-          model = DataStorm.models[model_name]
-          join = {}
-          join[lingo.en.singularize(function_name) + '_id'] = 'id'
-          where = {}
-          where[lingo.en.singularize(@constructor.table_name()) + '_id'] = @id
-          join_table = [@constructor.table_name(), model.table_name()].sort().join('_')
-          dataset = model.dataset().select(model.table_name() + '.*').join(join_table, join).
-            where(where)
-          dataset
+        @[function_name] = @build_many_to_many_function(association)
+
+    build_many_to_many_function: (association) ->
+      return ->
+        function_name = @to_table_name(association)
+        model_name    = @to_model_name(association)
+        model = DataStorm.models[model_name]
+        join = {}
+        join[lingo.en.singularize(function_name) + '_id'] = 'id'
+        where = {}
+        where[lingo.en.singularize(@constructor.table_name()) + '_id'] = @id
+        join_table = [@constructor.table_name(), model.table_name()].sort().join('_')
+        dataset = model.dataset().select(model.table_name() + '.*').join(join_table, join).
+          where(where)
+        dataset
 
     # @private
     set_associations: ->
