@@ -6,6 +6,7 @@ DB = new DataStorm.mysql {username: 'root', password: '', host: 'localhost', dat
 class List extends DataStorm.Model
   @db = DB
   @one_to_many 'items'
+  @one_to_many 'generic_items'
   @one_to_many 'tags', {key: 'label_id'}
 
   @validate 'age', (name, value, done) ->
@@ -41,8 +42,7 @@ describe "Model", ->
     GenericItem.table_name().should.equal 'generic_items'
 
   it "should get the correct model name for table name", ->
-    gi = new GenericItem
-    gi.to_model_name('generic_items').should.equal 'GenericItem'
+    List.associations.one_to_many[1].name.should.equal 'GenericItem'
 
   it "should get the correct one_to_many sql", (done) ->
     list = new List
@@ -147,3 +147,26 @@ describe "Model", ->
       list.errors.should.have.property.age
       list.errors.should.have.property.debra
       done()
+
+  it "should work with multiple associations", (done) ->
+    mock_db = new DataStorm.mock
+    class Song extends DataStorm.Model
+      @db = mock_db
+      @many_to_one 'album'
+      @many_to_one 'artist'
+
+    class Album extends DataStorm.Model
+      @db = mock_db
+    class Artist extends DataStorm.Model
+      @db = mock_db
+    DataStorm.models['Song'] = Song
+    DataStorm.models['Album'] = Album
+    DataStorm.models['Artist'] = Artist
+    song = new Song name: 'hey ya', artist_id: 1, album_id: 2, id: 3
+    try
+      song.album()
+    catch e
+      mock_db.queries[0].should.
+        equal "SELECT albums.* FROM `albums` INNER JOIN `songs` ON (`songs`.`album_id`=`albums`.`id`) WHERE songs.id='3' LIMIT 1"
+      done()
+
