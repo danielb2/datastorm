@@ -101,9 +101,9 @@ module.exports = (DataStorm) ->
     # @private
     set_many_to_many_association: ->
       for association in @constructor.associations.many_to_many
-        function_name = @to_table_name(association)
-        model_name    = @to_model_name(association)
-        @[function_name] = @build_many_to_many_function(association)
+        function_name = @to_table_name(association.name)
+        model_name    = @to_model_name(association.name)
+        @[function_name] = @build_many_to_many_function(association.name)
 
     # @private
     build_many_to_many_function: (association) ->
@@ -252,21 +252,21 @@ module.exports = (DataStorm) ->
       @constructor.table_name()
 
     @many_to_one: (name, association = {}) ->
-      association.name = lingo.capitalize(lingo.en.singularize(name))
+      association.name   = lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
       association.function_name = association.name.toLowerCase()
       @associations ||= {}
       if @associations.many_to_one then @associations.many_to_one.push association else @associations.many_to_one = [association]
 
     @one_to_many: (name, association = {}) ->
-      association.name   = lingo.capitalize(lingo.en.singularize(name))
+      association.name   = lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
       association.function_name = name
       @associations ||= {}
       if @associations.one_to_many then @associations.one_to_many.push association else @associations.one_to_many =  [association]
 
-    @many_to_many: (relation) ->
-      model_name = lingo.capitalize(lingo.en.singularize(relation))
+    @many_to_many: (name, association = {}) ->
+      association.name   = lingo.capitalize(lingo.camelcase(lingo.en.singularize(name).replace('_',' ')))
       @associations ||= {}
-      if @associations.many_to_many then @associations.many_to_many.push model_name else @associations.many_to_many =  [model_name]
+      if @associations.many_to_many then @associations.many_to_many.push association else @associations.many_to_many =  [association]
 
     # aliases for activerecord
     @has_many                = @one_to_many
