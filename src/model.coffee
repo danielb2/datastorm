@@ -85,15 +85,22 @@ module.exports = (DataStorm) ->
       for association in @constructor.associations.many_to_one
         model_name = @to_model_name(association)
         function_name = model_name.toLowerCase()
-        @[function_name] = (cb) ->
-          model = DataStorm.models[model_name]
-          join = {}
-          join[function_name + '_id'] = 'id'
-          where = {}
-          where[@constructor.table_name() + '.id'] = @id
-          dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
-            where(where)
-          dataset.first cb
+        @[function_name] = @build_many_to_one_function(association)
+
+    # @private
+    build_many_to_one_function: (association) ->
+      return (cb) ->
+        model_name = @to_model_name(association)
+        function_name = model_name.toLowerCase()
+        model = DataStorm.models[model_name]
+        join = {}
+        join[function_name + '_id'] = 'id'
+        where = {}
+        where[@constructor.table_name() + '.id'] = @id
+        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
+          where(where)
+        dataset.first cb
+
 
     # @private
     set_many_to_many_association: ->
