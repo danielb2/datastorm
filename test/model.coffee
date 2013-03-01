@@ -147,3 +147,25 @@ describe "Model", ->
       list.errors.should.have.property.age
       list.errors.should.have.property.debra
       done()
+
+  it "should work with multiple associations", (done) ->
+    mock_db = new DataStorm.mock
+    class Song extends DataStorm.Model
+      @db = mock_db
+      @belongs_to 'album'
+      @belongs_to 'artist'
+
+    class Album extends DataStorm.Model
+      @db = mock_db
+    class Artist extends DataStorm.Model
+      @db = mock_db
+    DataStorm.models['Song'] = Song
+    DataStorm.models['Album'] = Album
+    DataStorm.models['Artist'] = Artist
+    song = new Song name: 'hey ya', artist_id: 1, album_id: 2, id: 3
+    try
+      song.album()
+    catch e
+      mock_db.queries[0].should.
+        equal "SELECT albums.* FROM `albums` INNER JOIN `songs` ON (`songs`.`album_id`=`albums`.`id`) WHERE songs.id='3' LIMIT 1"
+      done()
