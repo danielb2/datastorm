@@ -88,12 +88,16 @@ module.exports = (DataStorm) ->
     # @private
     build_many_to_one_function: (association) ->
       return (cb) ->
-        model = DataStorm.models[association.name]
-        join = {}
-        join[association.function_name + '_id'] = 'id'
+        if association.polymorphic == true
+          field = association.name.toLowerCase() + "_type"
+          model_name = @[field]
+          model = DataStorm.models[model_name]
+        else
+          model = DataStorm.models[association.name]
+        field_id = association.name.toLowerCase() + "_id"
         where = {}
-        where[@constructor.table_name() + '.id'] = @id
-        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
+        where[model.table_name() + '.id'] = @[field_id]
+        dataset = model.dataset().
           where(where)
         dataset.first cb
 

@@ -167,6 +167,23 @@ describe "Model", ->
       song.album()
     catch e
       mock_db.queries[0].should.
-        equal "SELECT albums.* FROM `albums` INNER JOIN `songs` ON (`songs`.`album_id`=`albums`.`id`) WHERE songs.id='3' LIMIT 1"
+        equal "SELECT * FROM `albums` WHERE albums.id='2' LIMIT 1"
+      done()
+
+  it "should work with polymorphic associations", (done) ->
+    mock_db = new DataStorm.mock
+    class Song extends DataStorm.Model
+      @db = mock_db
+    class Artist extends DataStorm.Model
+      @db = mock_db
+      @many_to_one 'release', { polymorphic: true }
+    DataStorm.models['Artist'] = Artist
+    DataStorm.models['Song']   = Song
+    artist = new Artist release_id: 23, release_type: 'Song', id: 14
+    try
+      artist.release()
+    catch e
+      mock_db.queries[0].should.
+        equal "SELECT * FROM `songs` WHERE songs.id='23' LIMIT 1"
       done()
 
