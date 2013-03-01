@@ -83,18 +83,14 @@ module.exports = (DataStorm) ->
     # @private
     set_many_to_one_association: ->
       for association in @constructor.associations.many_to_one
-        model_name = @to_model_name(association)
-        function_name = model_name.toLowerCase()
-        @[function_name] = @build_many_to_one_function(association)
+        @[association.function_name] = @build_many_to_one_function(association)
 
     # @private
     build_many_to_one_function: (association) ->
       return (cb) ->
-        model_name = @to_model_name(association)
-        function_name = model_name.toLowerCase()
-        model = DataStorm.models[model_name]
+        model = DataStorm.models[association.name]
         join = {}
-        join[function_name + '_id'] = 'id'
+        join[association.function_name + '_id'] = 'id'
         where = {}
         where[@constructor.table_name() + '.id'] = @id
         dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
@@ -109,6 +105,7 @@ module.exports = (DataStorm) ->
         model_name    = @to_model_name(association)
         @[function_name] = @build_many_to_many_function(association)
 
+    # @private
     build_many_to_many_function: (association) ->
       return ->
         function_name = @to_table_name(association)
@@ -125,7 +122,6 @@ module.exports = (DataStorm) ->
 
     # @private
     set_associations: ->
-
       return unless @constructor.associations
       @set_one_to_many_association() if @constructor.associations.one_to_many
       @set_many_to_one_association() if @constructor.associations.many_to_one
@@ -255,10 +251,11 @@ module.exports = (DataStorm) ->
     table_name: ->
       @constructor.table_name()
 
-    @many_to_one: (relation) ->
-      model_name = lingo.capitalize(lingo.en.singularize(relation))
+    @many_to_one: (name, association = {}) ->
+      association.name = lingo.capitalize(lingo.en.singularize(name))
+      association.function_name = association.name.toLowerCase()
       @associations ||= {}
-      if @associations.many_to_one then @associations.many_to_one.push model_name else @associations.many_to_one = [model_name]
+      if @associations.many_to_one then @associations.many_to_one.push association else @associations.many_to_one = [association]
 
     @one_to_many: (name, association = {}) ->
       association.name   = lingo.capitalize(lingo.en.singularize(name))
