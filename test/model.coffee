@@ -174,16 +174,16 @@ describe "Model", ->
     mock_db = new DataStorm.mock
     class Song extends DataStorm.Model
       @db = mock_db
+      @many_to_one 'creator', { polymorphic: true }
     class Artist extends DataStorm.Model
       @db = mock_db
-      @many_to_one 'release', { polymorphic: true }
     DataStorm.models['Artist'] = Artist
     DataStorm.models['Song']   = Song
-    artist = new Artist release_id: 23, release_type: 'Song', id: 14
+    song = new Song creator_id: 23, creator_type: 'Artist', id: 14
     try
-      artist.release()
+      song.creator()
     catch e
       mock_db.queries[0].should.
-        equal "SELECT * FROM `songs` WHERE songs.id='23' LIMIT 1"
+        equal "SELECT * FROM `artists` WHERE artists.id='23' LIMIT 1"
       done()
 
