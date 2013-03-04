@@ -75,9 +75,16 @@ module.exports = (DataStorm) ->
       return ->
         model = DataStorm.models[association.name]
         key_link = association.key || lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
-        where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
-        dataset = model.dataset().
-          where(where_str)
+        dataset = model.dataset()
+        if association.as
+          where_str = "(`#{model.table_name()}`.`#{association.as}_id` = #{@id})"
+          dataset = dataset.where(where_str)
+          type = lingo.capitalize(lingo.camelcase(lingo.en.singularize(association.as).replace('_',' ')))
+          where_str = "(`#{model.table_name()}`.`#{association.as}_type` = '#{type}')"
+          dataset = dataset.where(where_str)
+        else
+          where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
+          dataset = dataset.where(where_str)
         dataset
 
     # @private
@@ -88,12 +95,16 @@ module.exports = (DataStorm) ->
     # @private
     build_many_to_one_function: (association) ->
       return (cb) ->
-        model = DataStorm.models[association.name]
-        join = {}
-        join[association.function_name + '_id'] = 'id'
+        if association.polymorphic == true
+          field = association.name.toLowerCase() + "_type"
+          model_name = @[field]
+          model = DataStorm.models[model_name]
+        else
+          model = DataStorm.models[association.name]
+        field_id = association.name.toLowerCase() + "_id"
         where = {}
-        where[@constructor.table_name() + '.id'] = @id
-        dataset = model.dataset().select(model.table_name() + '.*').join(@constructor.table_name(), join).
+        where[model.table_name() + '.id'] = @[field_id]
+        dataset = model.dataset().
           where(where)
         dataset.first cb
 
