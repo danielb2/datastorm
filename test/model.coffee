@@ -170,7 +170,7 @@ describe "Model", ->
         equal "SELECT * FROM `albums` WHERE albums.id='2' LIMIT 1"
       done()
 
-  it "should work with polymorphic associations", (done) ->
+  it "should work with polymorphic associations for one_to_many", (done) ->
     mock_db = new DataStorm.mock
     class Song extends DataStorm.Model
       @db = mock_db
@@ -186,4 +186,18 @@ describe "Model", ->
       mock_db.queries[0].should.
         equal "SELECT * FROM `artists` WHERE artists.id='23' LIMIT 1"
       done()
+
+  it "should work with polymorphic associations for many_to_one", (done) ->
+    mock_db = new DataStorm.mock
+    class Song extends DataStorm.Model
+      @db = mock_db
+    class Artist extends DataStorm.Model
+      @db = mock_db
+      @one_to_many 'songs', { as: 'creator' }
+    DataStorm.models['Artist'] = Artist
+    DataStorm.models['Song']   = Song
+    artist = new Artist id: 99
+    artist.songs().sql().should.
+      equal "SELECT * FROM `songs` WHERE (`songs`.`creator_id` = 99) AND (`songs`.`creator_type` = 'Creator')"
+    done()
 

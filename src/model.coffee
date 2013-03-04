@@ -75,9 +75,16 @@ module.exports = (DataStorm) ->
       return ->
         model = DataStorm.models[association.name]
         key_link = association.key || lingo.en.singularize(@constructor.name).toLowerCase() + "_id"
-        where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
-        dataset = model.dataset().
-          where(where_str)
+        dataset = model.dataset()
+        if association.as
+          where_str = "(`#{model.table_name()}`.`#{association.as}_id` = #{@id})"
+          dataset = dataset.where(where_str)
+          type = lingo.capitalize(lingo.camelcase(lingo.en.singularize(association.as).replace('_',' ')))
+          where_str = "(`#{model.table_name()}`.`#{association.as}_type` = '#{type}')"
+          dataset = dataset.where(where_str)
+        else
+          where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
+          dataset = dataset.where(where_str)
         dataset
 
     # @private
