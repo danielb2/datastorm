@@ -198,6 +198,6 @@ describe "Model", ->
     DataStorm.models['Song']   = Song
     artist = new Artist id: 99
     artist.songs().sql().should.
-      equal "SELECT * FROM `songs` WHERE (`songs`.`creator_id` = 99) AND (`songs`.`creator_type` = 'Creator')"
+      equal "SELECT * FROM `songs` WHERE (`songs`.`creator_id` = 99) AND (`songs`.`creator_type` = 'Artist')"
     done()
 

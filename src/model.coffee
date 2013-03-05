@@ -79,8 +79,7 @@ module.exports = (DataStorm) ->
         if association.as
           where_str = "(`#{model.table_name()}`.`#{association.as}_id` = #{@id})"
           dataset = dataset.where(where_str)
-          type = lingo.capitalize(lingo.camelcase(lingo.en.singularize(association.as).replace('_',' ')))
-          where_str = "(`#{model.table_name()}`.`#{association.as}_type` = '#{type}')"
+          where_str = "(`#{model.table_name()}`.`#{association.as}_type` = '#{@constructor.name}')"
           dataset = dataset.where(where_str)
         else
           where_str = "(`#{model.table_name()}`.`#{key_link}` = #{@id})"
