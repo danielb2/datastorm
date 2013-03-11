@@ -95,7 +95,7 @@ describe "Model", ->
     class Character extends DataStorm.Model
       @db = DB
     Character.insert_sql({first_name: 'walter', last_name: 'bishop', age: 64}).should.
-      equal "INSERT INTO `characters` (`first_name`,`last_name`,`age`) VALUES ('walter','bishop',64)"
+      equal "INSERT INTO `characters` (`first_name`,`last_name`,`age`) VALUES ('walter', 'bishop', 64)"
 
   it "should update data for instance", ->
     class Character extends DataStorm.Model
