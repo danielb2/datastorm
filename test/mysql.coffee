@@ -157,7 +157,7 @@ describe "Mysql", ->
         done()
 
     it "should behave well even if some values are bad", (done) ->
-      item = new Item id: 190, flower: "theres no flower"
+      item = new Item id: 190, flower: "there's no flower"
       item.save (err, result) ->
         err.should.exist
         done()

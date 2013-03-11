@@ -1,3 +1,4 @@
+{escape} = require 'mysql'
 class @dataset
   constructor: (connection, tableName) ->
     @connection = connection
@@ -136,7 +137,8 @@ class @dataset
     return JSON.stringify(array).replace(/"/g,'`','gi').replace(/[\[\]]/g,'')
   # @private
   _stringify_field_values: (array) ->
-    return JSON.stringify(array).replace(/"/g,'\'','gi').replace(/[\[\]]/g,'')
+    return @connection.escape(array) if @connection.escape
+    return escape(array)
 
   # @private
   _build_where: ->
@@ -145,7 +147,7 @@ class @dataset
       field_name_str  = @_stringify_field_names([k])
       field_value_str = @_stringify_field_values([v])
       if toString.call(v) == '[object Array]'
-        whereClause.push "#{field_name_str} IN(#{field_value_str})"
+        whereClause.push "#{field_name_str} IN #{field_value_str}"
       else
         whereClause.push "#{k}='#{v}'"
     if @clause.where_strings

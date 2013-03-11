@@ -18,6 +18,7 @@
   "dependencies": {
     "coffee-script": "~1.4.0",
     "lingo": "0.0.5",
-    "async": "~0.2.5"
+    "async": "~0.2.5",
+    "mysql": "~2.0.0-alpha7"
   }
 }

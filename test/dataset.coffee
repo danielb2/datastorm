@@ -55,10 +55,10 @@ describe "Dataset", ->
     dataset.where({title: 'mountain dew'}).sql().should.equal "SELECT * FROM `items` WHERE title='mountain dew'"
 
   it "should use in for where array", ->
-    dataset.where({id: [1,2,3]}).sql().should.equal "SELECT * FROM `items` WHERE `id` IN(1,2,3)"
+    dataset.where({id: [1,2,3]}).sql().should.equal "SELECT * FROM `items` WHERE `id` IN (1, 2, 3)"
 
   it "should use in for where string array", ->
-    dataset.where({name: ['one','two']}).sql().should.equal "SELECT * FROM `items` WHERE `name` IN('one','two')"
+    dataset.where({name: ['one','two']}).sql().should.equal "SELECT * FROM `items` WHERE `name` IN ('one', 'two')"
 
   it "should be able to define our own WHERE", ->
     dataset.where("created_at='whatever'").sql().should.equal "SELECT * FROM `items` WHERE created_at='whatever'"
@@ -95,7 +95,7 @@ describe "Dataset", ->
   it "should insert data", ->
     dataset = db.ds('posts')
     dataset.insert_sql(first_name: 'walter', last_name: 'bishop', age: 64).should.
-      equal "INSERT INTO `posts` (`first_name`,`last_name`,`age`) VALUES ('walter','bishop',64)"
+      equal "INSERT INTO `posts` (`first_name`,`last_name`,`age`) VALUES ('walter', 'bishop', 64)"
 
   it "should update data", ->
     dataset = db.ds('movies')
