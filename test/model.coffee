@@ -11,12 +11,12 @@ class List extends DataStorm.Model
 
   @validate 'age', (name, value, done) ->
     # console.log 'this has to be executed ' + value
-    @errors.add value, 'Not of type number' unless typeof value == 'number'
+    @errors.add name, 'Not of type number' unless typeof value == 'number'
     done()
 
   @validate 'first_name', (name, value, done) ->
     # console.log 'first_name'
-    @errors.add value, 'We dont allow Debra' if value == 'debra'
+    @errors.add name, 'We dont allow Debra' if value == 'debra'
     done()
 
 class Tag extends DataStorm.Model
