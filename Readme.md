@@ -118,8 +118,9 @@ object's errors. If an object has any errors added by the validate method,
 save will return an error.
 
     class Post extends DataStorm.Model
-      @validate 'name', (name) ->
-        @errors.add name, "cant be bob" if name == 'bob'
+      @validate 'name', (name, value, done) ->
+        @errors.add name, "cant be bob" if value == 'bob'
+        done()
 
 [Sequel]: http://sequel.rubyforge.org/
 [node]: http://nodejs.org/

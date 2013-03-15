@@ -11,6 +11,10 @@ presence = (name, value, done) ->
   @errors.add name, 'is not present' unless value
   done()
 
+blank = (name, value, done) ->
+  @errors.add name, 'is blank' if !value or value.length == 0
+  done()
+
 email = (name, value, done) ->
   email_regexp = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i
   @errors.add name, 'is not an email' unless email_regexp.test(value)
@@ -22,3 +26,4 @@ module.exports =
   numeric: integer
   presence: presence
   email: email
+  blank: blank

@@ -23,6 +23,23 @@ describe "Model.Validations", ->
         JSON.stringify(thing.errors).should.equal "{}"
         done()
 
+  describe "validate blank", ->
+    class Thing extends DataStorm.Model
+      @validate 'name', DataStorm.validation.blank
+
+    it "error if blank", (done) ->
+      thing = new Thing
+      thing.validate ->
+        JSON.stringify(thing.errors).should.equal '{"name":["is blank"]}'
+        done()
+
+    it "no problem if not blank", (done) ->
+      thing = new Thing
+      thing.name = "naruto"
+      thing.validate ->
+        JSON.stringify(thing.errors).should.equal "{}"
+        done()
+
   describe "validate email", ->
     class Thing extends DataStorm.Model
       @validate 'email', DataStorm.validation.email
