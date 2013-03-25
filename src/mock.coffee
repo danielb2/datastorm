@@ -5,11 +5,10 @@ module.exports = (DataStorm) ->
       @connection =
         query: (sql, cb) =>
           @queries.push sql
-          cb(null)
+          cb(1)
 
     reset: ->
       @queries = []
-
 
     ds: (name) ->
       new DataStorm.dataset(@connection, name)
