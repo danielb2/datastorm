@@ -187,6 +187,19 @@ describe "Model", ->
         equal "SELECT * FROM `artists` WHERE artists.id='23' LIMIT 1"
       done()
 
+  it "should update model with key", (done) ->
+    mock_db = new DataStorm.mock
+    class Song extends DataStorm.Model
+      @db = mock_db
+    DataStorm.models['Song']   = Song
+    song = new Song creator_id: 23, creator_type: 'Artist', id: 14
+    song.new = false
+    song.values.creator_id = 24
+    song.save (err, num) ->
+      mock_db.queries[0].should.
+        equal "UPDATE `songs` SET `creator_id` = 23 WHERE id='14'"
+      done()
+
   it "should work with polymorphic associations for many_to_one", (done) ->
     mock_db = new DataStorm.mock
     class Song extends DataStorm.Model

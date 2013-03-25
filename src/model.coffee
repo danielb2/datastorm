@@ -215,7 +215,7 @@ module.exports = (DataStorm) ->
           updates = {}
           for change in @changed_columns()
             updates[change] = @values[change] = @[change]
-          @constructor.update updates, callbk
+          @constructor.where(id: @id).update updates, callbk
 
       async.series {validate: validate, command: command}, (err, results) =>
         return cb err if err
