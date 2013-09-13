@@ -30,6 +30,11 @@ is equivalent to
 
     SELECT COUNT(*) as count FROM `countries` WHERE region='Middle East'
 
+Accessing all the records you'd have something very similar:
+
+    DB.ds('countries').where({region: 'Middle East'}).all(err, results) {
+      results // results is an array of county objects
+    }
 
 # DataStorm Models #
 A model class wraps a dataset, and an instance of that class wraps a single
