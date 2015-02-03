@@ -1,2 +1,1 @@
-require('coffee-script');
-module.exports = require('./src/datastorm');
+module.exports = require('./lib/datastorm');
