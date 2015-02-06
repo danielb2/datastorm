@@ -330,9 +330,10 @@ describe("Mysql", function() {
                 id: 190,
                 name: "the new item"
             });
-            return item.save(function(err, result) {
 
-                result.should.equal(190);
+            item.save(function(err, result) {
+
+                expect(result).to.equal(190);
                 return done();
             });
         });
@@ -353,16 +354,16 @@ describe("Mysql", function() {
 
         it("should update a fetched item", function(done) {
 
-            return Item.find(42, function(err, item) {
+            return Item.find(42, function (err, item) {
 
                 item.name = 'flower';
-                return item.save(function(err, result) {
+                item.save(function (err, result) {
 
-                    result.should.equal(2);
-                    return Item.find(42, function(err, result) {
+                    expect(result).to.equal(2);
+                    Item.find(42, function (err, result) {
 
-                        result.name.should.equal('flower');
-                        return done();
+                        expect(result.name).to.equal('flower');
+                        done();
                     });
                 });
             });
@@ -482,21 +483,23 @@ describe("Mysql", function() {
             });
         });
 
-        it("should insert data", function(done) {
+        it("should insert data", function (done) {
 
             var dataset;
             dataset = DB.ds('items');
-            return dataset.insert({
+
+            dataset.insert({
                 name: 'inserted item'
             }, function(err, row_id) {
 
-                return dataset.where({
+                dataset.where({
                     name: 'inserted item'
                 }).all(function(err, results) {
 
-                    results[0].name.should.equal('inserted item');
+                    expect(results.length).to.equal(1);
+                    expect(results[0].name).to.equal('inserted item');
                     row_id.should.equal(results[0].id);
-                    return done();
+                    done();
                 });
             });
         });
