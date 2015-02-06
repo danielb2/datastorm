@@ -13,8 +13,7 @@
   "devDependencies": {
     "chai": "~1.4.0",
     "code": "1.x.x",
-    "lab": "5.x.x",
-    "mocha": "~1.7.4"
+    "lab": "5.x.x"
   },
   "author": "Daniel Bretoi",
   "dependencies": {
