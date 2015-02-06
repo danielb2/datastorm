@@ -1,1 +1,1 @@
-module.exports = require('./lib/datastorm');
+module.exports = require('./lib');

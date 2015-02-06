@@ -1,5 +1,5 @@
 var Code = require('code');
-var DataStorm = require('../lib/datastorm');
+var DataStorm = require('../lib');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 

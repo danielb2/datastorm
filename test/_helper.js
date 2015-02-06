@@ -1,4 +1,4 @@
 process.env.NODE_ENV = 'test';
 
-DataStorm = require('../lib/datastorm');
+DataStorm = require('../lib');
 require('chai').should();
