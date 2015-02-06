@@ -328,13 +328,15 @@ describe("Mysql", function() {
             var item;
             item = new Item({
                 id: 190,
+                list_id: 12,
                 name: "the new item"
             });
 
             item.save(function(err, result) {
 
+                expect(err).to.equal(null);
                 expect(result).to.equal(190);
-                return done();
+                done();
             });
         });
 
@@ -347,19 +349,19 @@ describe("Mysql", function() {
             });
             return item.save(function(err, result) {
 
-                err.should.exist;
+                expect(err).to.not.equal(null);
                 return done();
             });
         });
 
         it("should update a fetched item", function(done) {
 
-            return Item.find(42, function (err, item) {
+            Item.find(42, function (err, item) {
 
                 item.name = 'flower';
                 item.save(function (err, result) {
 
-                    expect(result).to.equal(2);
+                    expect(result).to.equal(1);
                     Item.find(42, function (err, result) {
 
                         expect(result.name).to.equal('flower');
@@ -489,9 +491,11 @@ describe("Mysql", function() {
             dataset = DB.ds('items');
 
             dataset.insert({
-                name: 'inserted item'
+                name: 'inserted item',
+                list_id: 12
             }, function(err, row_id) {
 
+                expect(err).to.equal(null);
                 dataset.where({
                     name: 'inserted item'
                 }).all(function(err, results) {
