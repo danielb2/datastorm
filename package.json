@@ -11,8 +11,10 @@
     "url": ""
   },
   "devDependencies": {
-    "mocha": "~1.7.4",
-    "chai": "~1.4.0"
+    "chai": "~1.4.0",
+    "code": "1.x.x",
+    "lab": "5.x.x",
+    "mocha": "~1.7.4"
   },
   "author": "Daniel Bretoi",
   "dependencies": {
