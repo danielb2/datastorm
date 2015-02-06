@@ -1,5 +1,18 @@
-__hasProp = {}.hasOwnProperty,
-__extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var Code = require('code');
+var DataStorm = require('../lib');
+var Lab = require('lab');
+var lab = exports.lab = Lab.script();
+
+var describe = lab.describe;
+var it = lab.it;
+var before = lab.before;
+var beforeEach = lab.beforeEach;
+var after = lab.after;
+var expect = Code.expect;
+
+
+var __hasProp = {}.hasOwnProperty;
+var __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 require("./_helper");
 
@@ -315,12 +328,15 @@ describe("Mysql", function() {
             var item;
             item = new Item({
                 id: 190,
+                list_id: 12,
                 name: "the new item"
             });
-            return item.save(function(err, result) {
 
-                result.should.equal(190);
-                return done();
+            item.save(function(err, result) {
+
+                expect(err).to.equal(null);
+                expect(result).to.equal(190);
+                done();
             });
         });
 
@@ -333,23 +349,23 @@ describe("Mysql", function() {
             });
             return item.save(function(err, result) {
 
-                err.should.exist;
+                expect(err).to.not.equal(null);
                 return done();
             });
         });
 
         it("should update a fetched item", function(done) {
 
-            return Item.find(42, function(err, item) {
+            Item.find(42, function (err, item) {
 
                 item.name = 'flower';
-                return item.save(function(err, result) {
+                item.save(function (err, result) {
 
-                    result.should.equal(2);
-                    return Item.find(42, function(err, result) {
+                    expect(result).to.equal(1);
+                    Item.find(42, function (err, result) {
 
-                        result.name.should.equal('flower');
-                        return done();
+                        expect(result.name).to.equal('flower');
+                        done();
                     });
                 });
             });
@@ -469,21 +485,25 @@ describe("Mysql", function() {
             });
         });
 
-        it("should insert data", function(done) {
+        it("should insert data", function (done) {
 
             var dataset;
             dataset = DB.ds('items');
-            return dataset.insert({
-                name: 'inserted item'
+
+            dataset.insert({
+                name: 'inserted item',
+                list_id: 12
             }, function(err, row_id) {
 
-                return dataset.where({
+                expect(err).to.equal(null);
+                dataset.where({
                     name: 'inserted item'
                 }).all(function(err, results) {
 
-                    results[0].name.should.equal('inserted item');
+                    expect(results.length).to.equal(1);
+                    expect(results[0].name).to.equal('inserted item');
                     row_id.should.equal(results[0].id);
-                    return done();
+                    done();
                 });
             });
         });
