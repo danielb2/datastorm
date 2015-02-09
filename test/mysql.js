@@ -11,9 +11,6 @@ var after = lab.after;
 var expect = Code.expect;
 
 
-var __hasProp = {}.hasOwnProperty;
-var __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
 require("./_helper");
 
 var expect = require('chai').expect;
@@ -25,94 +22,41 @@ var DB = new DataStorm.mysql({
     database: 'datastorm_test'
 });
 
-var List = (function(_super) {
-    __extends(List, _super);
+var List = DataStorm.model('list');
+List.db = DB;
+List.one_to_many('items');
+List.many_to_many('tags');
 
-    function List() {
-        return List.__super__.constructor.apply(this, arguments);
-    }
 
-    List.db = DB;
+var Item = DataStorm.model('item', DB);
+Item.many_to_one('list');
 
-    List.one_to_many('items');
+var Tag = DataStorm.model('tag', DB);
+Tag.many_to_many('lists');
+Tag.validate('name', function(name, val, done) {
 
-    List.many_to_many('tags');
+    return this.constructor.where({
+        name: val
+    }).first((function(_this) {
 
-    return List;
+        return function(err, result) {
 
-})(DataStorm.Model);
+            if (result) {
+                _this.errors.add(name, 'must be unique');
+            }
+            _this.ran = true;
+            return done();
+        };
+    })(this));
+});
 
-var Item = (function(_super) {
 
-    __extends(Item, _super);
+var Actor = DataStorm.model('actor', DB);
+Actor.prototype.after_create = function() {
 
-    function Item() {
-
-        return Item.__super__.constructor.apply(this, arguments);
-    }
-
-    Item.db = DB;
-
-    Item.many_to_one('list');
-
-    return Item;
-
-})(DataStorm.Model);
-
-var Tag = (function(_super) {
-
-    __extends(Tag, _super);
-
-    function Tag() {
-
-        return Tag.__super__.constructor.apply(this, arguments);
-    }
-
-    Tag.db = DB;
-
-    Tag.many_to_many('lists');
-
-    Tag.validate('name', function(name, val, done) {
-
-        return this.constructor.where({
-            name: val
-        }).first((function(_this) {
-
-            return function(err, result) {
-
-                if (result) {
-                    _this.errors.add(name, 'must be unique');
-                }
-                _this.ran = true;
-                return done();
-            };
-        })(this));
-    });
-
-    return Tag;
-
-})(DataStorm.Model);
-
-var Actor = (function(_super) {
-
-    __extends(Actor, _super);
-
-    function Actor() {
-
-        return Actor.__super__.constructor.apply(this, arguments);
-    }
-
-    Actor.db = DB;
-
-    Actor.prototype.after_create = function() {
-
-        Actor.__super__.after_create.apply(this, arguments);
-        return this.was_saved = true;
-    };
-
-    return Actor;
-
-})(DataStorm.Model);
+    Actor.__super__.after_create.apply(this, arguments);
+    return this.was_saved = true;
+};
 
 DataStorm.models = {
     Tag: Tag,
@@ -262,7 +206,7 @@ describe("Mysql", function() {
                 return list.items().first(function(err, item) {
 
                     item.name.should.equal('an item');
-                    item.constructor.name.should.equal('Item');
+                    item.constructor.model_name().should.equal('Item');
                     item.id.should.equal(42);
                     item.table_name().should.equal('items');
                     return done();
@@ -279,7 +223,7 @@ describe("Mysql", function() {
                     var item;
                     item = items[0];
                     item.name.should.equal('an item');
-                    item.constructor.name.should.equal('Item');
+                    item.constructor.model_name().should.equal('Item');
                     item.id.should.equal(42);
                     item.table_name().should.equal('items');
                     return done();
@@ -292,10 +236,10 @@ describe("Mysql", function() {
             return Item.find(42, function(err, item) {
 
                 item.name.should.equal('an item');
-                item.constructor.name.should.equal('Item');
+                item.constructor.model_name().should.equal('Item');
                 return item.list(function(err, list) {
 
-                    list.constructor.name.should.equal('List');
+                    list.constructor.model_name().should.equal('List');
                     list.id.should.equal(51);
                     list.name.should.equal('a list');
                     return done();
@@ -308,7 +252,7 @@ describe("Mysql", function() {
             return Item.all(function(err, items) {
 
                 items[0].name.should.equal('another item');
-                items[0].constructor.name.should.equal('Item');
+                items[0].constructor.model_name().should.equal('Item');
                 items[1].name.should.equal('an item');
                 return done();
             });
@@ -573,26 +517,13 @@ describe("Mysql", function() {
 
         return it("should validate uniqueness", function(done) {
 
-            var tag;
-            Tag = (function(_super) {
+            var Tag = DataStorm.model('tag', DB);
+            Tag.validate('name', DataStorm.validation.unique);
 
-                __extends(Tag, _super);
-
-                function Tag() {
-
-                    return Tag.__super__.constructor.apply(this, arguments);
-                }
-
-                Tag.db = DB;
-
-                Tag.validate('name', DataStorm.validation.unique);
-
-                return Tag;
-
-            })(DataStorm.Model);
-            tag = new Tag({
+            var tag = new Tag({
                 name: "wish"
             });
+
             return tag.validate(function(err, finished) {
 
                 JSON.stringify(tag.errors).should.equal('{"name":["is already taken"]}');
