@@ -112,7 +112,9 @@ The defined calls can be called directly on the created object:
     Post.find(123, function (err, post) {
         post.comments.all(function (err, comments) {
             for(var comment in comments) {
-                console.log(comment);
+                if (comments.hasOwnProperty(comment)) {
+                    console.log(comment);
+                }
             }
         }
     }
