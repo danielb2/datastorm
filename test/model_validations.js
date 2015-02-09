@@ -10,9 +10,6 @@ var beforeEach = lab.beforeEach;
 var after = lab.after;
 var expect = Code.expect;
 
-var __hasProp = {}.hasOwnProperty;
-var __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
 require("./_helper");
 
 describe("Model.Validations", function() {
@@ -34,20 +31,8 @@ describe("Model.Validations", function() {
 
     describe("validate presence", function() {
 
-        var Thing = (function(_super) {
-
-            __extends(Thing, _super);
-
-            function Thing() {
-
-                return Thing.__super__.constructor.apply(this, arguments);
-            }
-
-            Thing.validate('name', DataStorm.validation.presence);
-
-            return Thing;
-
-        })(DataStorm.Model);
+        var Thing = DataStorm.model('thing');
+        Thing.validate('name', DataStorm.validation.presence);
 
         it("error if not present", function(done) {
             var thing;
@@ -73,20 +58,8 @@ describe("Model.Validations", function() {
 
     describe("validate blank", function() {
 
-        var Thing = (function(_super) {
-
-            __extends(Thing, _super);
-
-            function Thing() {
-
-                return Thing.__super__.constructor.apply(this, arguments);
-            }
-
-            Thing.validate('name', DataStorm.validation.blank);
-
-            return Thing;
-
-        })(DataStorm.Model);
+        var Thing = DataStorm.model('thing');
+        Thing.validate('name', DataStorm.validation.blank);
 
         it("error if blank", function(done) {
 
@@ -112,19 +85,8 @@ describe("Model.Validations", function() {
 
     return describe("validate email", function() {
 
-        var Thing;
-        Thing = (function(_super) {
-            __extends(Thing, _super);
-
-            function Thing() {
-                return Thing.__super__.constructor.apply(this, arguments);
-            }
-
-            Thing.validate('email', DataStorm.validation.email);
-
-            return Thing;
-
-        })(DataStorm.Model);
+        var Thing = DataStorm.model('thing');
+        Thing.validate('email', DataStorm.validation.email);
 
         it("error if not present", function(done) {
 

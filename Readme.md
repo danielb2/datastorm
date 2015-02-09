@@ -43,13 +43,9 @@ record in the dataset.
 Model classes are defined as regular Ruby classes inheriting from
 DataStorm.Model
 
-Using coffee script syntax (use http://js2coffee.org/ to translate) for sake
-of abbreviation:
+    DB = new DataStorm.mysql({username: 'root', password: '', host: 'localhost', database: 'datastorm_test'});
 
-    DB = new DataStorm.mysql {username: 'root', password: '', host: 'localhost', database: 'datastorm_test'}
-
-    class Post extends DataStorm.Model
-      @db = DB
+    var Post = DataStorm.model('Post', DB);
 
 DataStorm model classes assume that the table name is an underscored plural of
 the class name:
@@ -60,28 +56,30 @@ the class name:
 Model instances are identified by a primary key. DataStorm currently only uses
 'id' for primary key.
 
-    Post.find 123, (err, post) ->
-      post.id #=> 123
+    Post.find(123, function (err, post) {
+        post.id // 123
+    }
 
 ## Accessing record values ##
 A model instance stores its values as a hash with column symbol keys, which
 you can access directly via the values method:
 
-    Post.find 123, (err, post) ->
-      post.values #=> {id: 123, category: 'coffee-script', title: 'hello world'}
+    Post.find(123, function (err, post) {
+        post.values // {id: 123, category: 'coffee-script', title: 'hello world'}
+    }
 
 You can read the record values as object attributes, assuming the attribute
 names are valid columns in the model's dataset:
 
-    post.id #=> 123
-    post.title #=> 'hello world'
+    post.id // 123
+    post.title // 'hello world'
 
 If the record's attributes names are not valid columns in the model's dataset
 (maybe because you used select\_append to add a computed value column), you can
 use Model[] to access the values:
 
-    post['id'] #=> 123
-    post['title'] #=> 'hello world'
+    post['id'] // 123
+    post['title'] // 'hello world'
 
 You can also modify record values using attribute setters, the []= method, or
 the set method:
@@ -93,8 +91,9 @@ the set method:
 That will just change the value for the object, it will not update the row in
 the database. To update the database row, call the save method:
 
-    post.save (err, value) ->
-      value #=> value is equal to the id for a new record, or numbers of records altered for an update
+    post.save(function (err, value) {
+        value // value is equal to the id for a new record, or numbers of records altered for an update
+    }
 
 
 ## Associations ##
@@ -103,17 +102,20 @@ that reflect relationships between tables in the database, which are usually
 specified using foreign keys. You specify model associations via the
 many\_to\_one, one\_to\_one, one\_to\_many, and many\_to\_many class methods:
 
-    class Post extends DataStorm.Model
-      many_to_one 'author'
-      one_to_many 'comments'
-      many_to_many 'tags'
+    var Post = DataStorm.model('post');
+    Post.many_to_one('author');
+    Post.one_to_many('comments');
+    Post.many_to_many('tags');
 
 The defined calls can be called directly on the created object:
 
-    Post.find 123, (err, post) ->
-      post.comments.all (err, comments) ->
-        for comment in comments
-          console.log comment
+    Post.find(123, function (err, post) {
+        post.comments.all(function (err, comments) {
+            for(var comment in comments) {
+                console.log(comment);
+            }
+        }
+    }
 
 ## Model Validations ##
 You can define a validate method for your model, which save will check before
@@ -122,10 +124,13 @@ isn't valid, you should add a error message for that attribute to the model
 object's errors. If an object has any errors added by the validate method,
 save will return an error.
 
-    class Post extends DataStorm.Model
-      @validate 'name', (name, value, done) ->
-        @errors.add name, "cant be bob" if value == 'bob'
+    var Post = DataStorm.model('post');
+    Post.validate('name', function (name, value, done) {
+        if (value === 'bob') {
+            this.errors.add(name, "cant be bob");
+        }
         done()
+    }
 
 [Sequel]: http://sequel.rubyforge.org/
 [node]: http://nodejs.org/

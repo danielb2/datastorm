@@ -10,9 +10,6 @@ var beforeEach = lab.beforeEach;
 var after = lab.after;
 var expect = Code.expect;
 
-var __hasProp = {}.hasOwnProperty;
-var __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
 var Helper = require("./_helper");
 
 var DB = new DataStorm.mysql({
@@ -22,80 +19,34 @@ var DB = new DataStorm.mysql({
     database: 'datastorm_test'
 });
 
-var List = (function(_super) {
+var List = DataStorm.model('list', DB);
+List.one_to_many('items');
 
-    __extends(List, _super);
+List.one_to_many('generic_items');
 
-    function List() {
-        return List.__super__.constructor.apply(this, arguments);
+List.one_to_many('tags', {
+    key: 'label_id'
+});
+
+List.validate('age', function(name, value, done) {
+    if (typeof value !== 'number') {
+        this.errors.add(name, 'Not of type number');
     }
+    return done();
+});
 
-    List.db = DB;
-
-    List.one_to_many('items');
-
-    List.one_to_many('generic_items');
-
-    List.one_to_many('tags', {
-        key: 'label_id'
-    });
-
-    List.validate('age', function(name, value, done) {
-        if (typeof value !== 'number') {
-            this.errors.add(name, 'Not of type number');
-        }
-        return done();
-    });
-
-    List.validate('first_name', function(name, value, done) {
-        if (value === 'debra') {
-            this.errors.add(name, 'We dont allow Debra');
-        }
-        return done();
-    });
-
-    return List;
-
-})(DataStorm.Model);
-
-var Tag = (function(_super) {
-    __extends(Tag, _super);
-
-    function Tag() {
-        return Tag.__super__.constructor.apply(this, arguments);
+List.validate('first_name', function(name, value, done) {
+    if (value === 'debra') {
+        this.errors.add(name, 'We dont allow Debra');
     }
+    return done();
+});
 
-    Tag.db = DB;
+var Tag = DataStorm.model('tag', DB);
 
-    return Tag;
+var Item = DataStorm.model('item', DB);
 
-})(DataStorm.Model);
-
-var Item = (function(_super) {
-    __extends(Item, _super);
-
-    function Item() {
-        return Item.__super__.constructor.apply(this, arguments);
-    }
-
-    Item.db = DB;
-
-    return Item;
-
-})(DataStorm.Model);
-
-var GenericItem = (function(_super) {
-    __extends(GenericItem, _super);
-
-    function GenericItem() {
-        return GenericItem.__super__.constructor.apply(this, arguments);
-    }
-
-    GenericItem.db = DB;
-
-    return GenericItem;
-
-})(DataStorm.Model);
+var GenericItem = DataStorm.model('GenericItem', DB);
 
 DataStorm.models = {
     List: List,
@@ -220,21 +171,7 @@ describe("Model", function() {
 
     it("should insert data for instance", function (done) {
 
-        var Character;
-        Character = (function(_super) {
-
-            __extends(Character, _super);
-
-            function Character() {
-
-                return Character.__super__.constructor.apply(this, arguments);
-            }
-
-            Character.db = DB;
-
-            return Character;
-
-        })(DataStorm.Model);
+        var Character =  DataStorm.model('character', DB);
         Character.insert_sql({
             first_name: 'walter',
             last_name: 'bishop',
@@ -245,21 +182,7 @@ describe("Model", function() {
 
     it("should update data for instance", function (done) {
 
-        var Character;
-        Character = (function(_super) {
-
-            __extends(Character, _super);
-
-            function Character() {
-
-                return Character.__super__.constructor.apply(this, arguments);
-            }
-
-            Character.db = DB;
-
-            return Character;
-
-        })(DataStorm.Model);
+        var Character =  DataStorm.model('character', DB);
         Character.where({
             id: 3
         }).update_sql({
@@ -291,21 +214,7 @@ describe("Model", function() {
 
     it("should delete data for instance", function (done) {
 
-        var Character;
-        Character = (function(_super) {
-
-            __extends(Character, _super);
-
-            function Character() {
-
-                return Character.__super__.constructor.apply(this, arguments);
-            }
-
-            Character.db = DB;
-
-            return Character;
-
-        })(DataStorm.Model);
+        var Character =  DataStorm.model('character', DB);
         Character.where({
             id: 3
         }).delete_sql().should.equal("DELETE * FROM `characters` WHERE id='3'");
@@ -313,22 +222,9 @@ describe("Model", function() {
     });
 
     it("should return true if model instance is new", function (done) {
-        var Character, character;
-        Character = (function(_super) {
 
-            __extends(Character, _super);
-
-            function Character() {
-
-                return Character.__super__.constructor.apply(this, arguments);
-            }
-
-            Character.db = DB;
-
-            return Character;
-
-        })(DataStorm.Model);
-        character = new Character({
+        var Character =  DataStorm.model('character', DB);
+        var character = new Character({
             title: 'foo'
         });
         character["new"].should.equal(true);
@@ -387,61 +283,18 @@ describe("Model", function() {
 
     it("should work with multiple associations", function(done) {
 
-        var Album, Artist, Song, e, mock_db, song;
-        mock_db = new DataStorm.mock;
+        var mock_db = new DataStorm.mock;
 
-        Song = (function(_super) {
+        var Song = DataStorm.model('song', mock_db);
+        Song.many_to_one('album');
+        Song.many_to_one('artist');
+        var Album = DataStorm.model('album', mock_db);
+        var Artist = DataStorm.model('Artist', mock_db);
 
-            __extends(Song, _super);
-
-            function Song() {
-
-                return Song.__super__.constructor.apply(this, arguments);
-            }
-
-            Song.db = mock_db;
-
-            Song.many_to_one('album');
-
-            Song.many_to_one('artist');
-
-            return Song;
-
-        })(DataStorm.Model);
-
-        Album = (function(_super) {
-
-            __extends(Album, _super);
-
-            function Album() {
-
-                return Album.__super__.constructor.apply(this, arguments);
-            }
-
-            Album.db = mock_db;
-
-            return Album;
-
-        })(DataStorm.Model);
-
-        Artist = (function(_super) {
-
-            __extends(Artist, _super);
-
-            function Artist() {
-
-                return Artist.__super__.constructor.apply(this, arguments);
-            }
-
-            Artist.db = mock_db;
-
-            return Artist;
-
-        })(DataStorm.Model);
         DataStorm.models['Song'] = Song;
         DataStorm.models['Album'] = Album;
         DataStorm.models['Artist'] = Artist;
-        song = new Song({
+        var song = new Song({
             name: 'hey ya',
             artist_id: 1,
             album_id: 2,
@@ -450,7 +303,6 @@ describe("Model", function() {
         try {
             return song.album();
         } catch (_error) {
-            e = _error;
             mock_db.queries[0].should.equal("SELECT * FROM `albums` WHERE albums.id='2' LIMIT 1");
             done();
         }
@@ -458,43 +310,18 @@ describe("Model", function() {
 
     it("should work with polymorphic associations for one_to_many", function(done) {
 
-        var Artist, Song, e, mock_db, song;
-        mock_db = new DataStorm.mock;
+        var mock_db = new DataStorm.mock;
 
-        Song = (function(_super) {
-            __extends(Song, _super);
+        var Song = DataStorm.model('song', mock_db);
+        Song.many_to_one('creator', {
+            polymorphic: true
+        });
 
-            function Song() {
-                return Song.__super__.constructor.apply(this, arguments);
-            }
-
-            Song.db = mock_db;
-
-            Song.many_to_one('creator', {
-                polymorphic: true
-            });
-
-            return Song;
-
-        })(DataStorm.Model);
-
-        Artist = (function(_super) {
-
-            __extends(Artist, _super);
-
-            function Artist() {
-
-                return Artist.__super__.constructor.apply(this, arguments);
-            }
-
-            Artist.db = mock_db;
-
-            return Artist;
-
-        })(DataStorm.Model);
+        var Artist = DataStorm.model('Artist', mock_db);
         DataStorm.models['Artist'] = Artist;
         DataStorm.models['Song'] = Song;
-        song = new Song({
+
+        var song = new Song({
             creator_id: 23,
             creator_type: 'Artist',
             id: 14
@@ -502,7 +329,6 @@ describe("Model", function() {
         try {
             return song.creator();
         } catch (_error) {
-            e = _error;
             mock_db.queries[0].should.equal("SELECT * FROM `artists` WHERE artists.id='23' LIMIT 1");
             return done();
         }
@@ -510,25 +336,11 @@ describe("Model", function() {
 
     it("should update model with key", function(done) {
 
-        var Song, mock_db, song;
-        mock_db = new DataStorm.mock;
-        Song = (function(_super) {
-
-            __extends(Song, _super);
-
-            function Song() {
-
-                return Song.__super__.constructor.apply(this, arguments);
-            }
-
-            Song.db = mock_db;
-
-            return Song;
-
-        })(DataStorm.Model);
+        var mock_db = new DataStorm.mock;
+        var Song = DataStorm.model('song', mock_db);
 
         DataStorm.models['Song'] = Song;
-        song = new Song({
+        var song = new Song({
             creator_id: 23,
             creator_type: 'Artist',
             id: 14
@@ -544,44 +356,16 @@ describe("Model", function() {
 
     it("should work with polymorphic associations for many_to_one", function(done) {
 
-        var Artist, Song, artist, mock_db;
-        mock_db = new DataStorm.mock;
-        Song = (function(_super) {
+        var mock_db = new DataStorm.mock;
+        var Song = DataStorm.model('song', mock_db);
+        var Artist = DataStorm.model('Artist', mock_db);
+        Artist.one_to_many('songs', {
+            as: 'creator'
+        });
 
-            __extends(Song, _super);
-
-            function Song() {
-
-                return Song.__super__.constructor.apply(this, arguments);
-            }
-
-            Song.db = mock_db;
-
-            return Song;
-
-        })(DataStorm.Model);
-
-        Artist = (function(_super) {
-
-            __extends(Artist, _super);
-
-            function Artist() {
-
-                return Artist.__super__.constructor.apply(this, arguments);
-            }
-
-            Artist.db = mock_db;
-
-            Artist.one_to_many('songs', {
-                as: 'creator'
-            });
-
-            return Artist;
-
-        })(DataStorm.Model);
         DataStorm.models['Artist'] = Artist;
         DataStorm.models['Song'] = Song;
-        artist = new Artist({
+        var artist = new Artist({
             id: 99
         });
         artist.songs().sql().should.equal("SELECT * FROM `songs` WHERE (`songs`.`creator_id` = 99) AND (`songs`.`creator_type` = 'Artist')");
