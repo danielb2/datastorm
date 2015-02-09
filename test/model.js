@@ -59,7 +59,7 @@ describe("Model", function() {
 
     var db = null;
 
-    it("should ge tthe correct tablename for camelCased models", function (done) {
+    it("should get the correct tablename for camelCased models", function (done) {
 
         GenericItem.table_name().should.equal('generic_items');
         done();
