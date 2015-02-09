@@ -17,8 +17,8 @@
   },
   "author": "Daniel Bretoi",
   "dependencies": {
-    "async": "~0.2.5",
+    "async": "0.2.x",
     "inflection": "1.6.x",
-    "mysql": "~2.0.0-alpha7"
+    "mysql": "2.0.x"
   }
 }
