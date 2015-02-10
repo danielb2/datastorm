@@ -32,9 +32,9 @@ is equivalent to
 
 Accessing all the records you'd have something very similar:
 
-    DB.ds('countries').where({region: 'Middle East'}).all(err, results) {
+    DB.ds('countries').where({region: 'Middle East'}).all(function (err, results) {
       results // results is an array of county objects
-    }
+    });
 
 # DataStorm Models #
 A model class wraps a dataset, and an instance of that class wraps a single
@@ -58,7 +58,7 @@ Model instances are identified by a primary key. DataStorm currently only uses
 
     Post.find(123, function (err, post) {
         post.id // 123
-    }
+    });
 
 ## Accessing record values ##
 A model instance stores its values as a hash with column symbol keys, which
@@ -66,7 +66,7 @@ you can access directly via the values method:
 
     Post.find(123, function (err, post) {
         post.values // {id: 123, category: 'coffee-script', title: 'hello world'}
-    }
+    });
 
 You can read the record values as object attributes, assuming the attribute
 names are valid columns in the model's dataset:
@@ -93,7 +93,7 @@ the database. To update the database row, call the save method:
 
     post.save(function (err, value) {
         value // value is equal to the id for a new record, or numbers of records altered for an update
-    }
+    });
 
 
 ## Associations ##
@@ -132,7 +132,7 @@ save will return an error.
             this.errors.add(name, "cant be bob");
         }
         done()
-    }
+    });
 
 [Sequel]: http://sequel.rubyforge.org/
 [node]: http://nodejs.org/
