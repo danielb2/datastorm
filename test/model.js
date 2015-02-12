@@ -48,13 +48,6 @@ var Item = DataStorm.model('item', DB);
 
 var GenericItem = DataStorm.model('GenericItem', DB);
 
-DataStorm.models = {
-    List: List,
-    Item: Item,
-    Tag: Tag,
-    GenericItem: GenericItem
-};
-
 describe("Model", function() {
 
     var db = null;
