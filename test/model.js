@@ -334,6 +334,60 @@ describe("Model", function() {
         }
     });
 
+    it("should allow custom functions on the model", function(done) {
+
+        var mock_db = new DataStorm.mock;
+        var Song = DataStorm.model('song', mock_db);
+
+        Song.byTitle = function (name) {
+
+            return this.dataset().where({ song_title:  name });
+        }
+
+        var sql = Song.byTitle('muppet').sql();
+        expect(sql).to.equal('SELECT * FROM `songs` WHERE song_title=\'muppet\'');
+        done();
+    });
+
+    it("should allow custom functions on the instance", function(done) {
+
+        var mock_db = new DataStorm.mock;
+        var Song = DataStorm.model('song', mock_db);
+
+        Song.prototype.byTitle = function (name) {
+
+            return this.dataset().where({ song_title:  name,  creator_type: this.creator_type });
+        }
+
+        var song = new Song({
+            creator_type: 'Artist'
+        });
+
+        var sql = song.byTitle('muppet').sql();
+        expect(sql).to.equal('SELECT * FROM `songs` WHERE song_title=\'muppet\' AND creator_type=\'Artist\'');
+        done();
+    });
+
+    it("should allow custom functions on the instance", function(done) {
+
+        var mock_db = new DataStorm.mock;
+        var Song = DataStorm.model('song', mock_db);
+
+        Song.prototype.byTitle = function (name) {
+
+            return this.dataset().where({ song_title:  name,  creator_type: this.creator_type });
+        }
+
+        DataStorm.models['Song'] = Song;
+        var song = new Song({
+            creator_type: 'Artist'
+        });
+
+        var sql = song.byTitle('muppet').sql();
+        expect(sql).to.equal('SELECT * FROM `songs` WHERE song_title=\'muppet\' AND creator_type=\'Artist\'');
+        done();
+    });
+
     it("should update model with key", function(done) {
 
         var mock_db = new DataStorm.mock;
