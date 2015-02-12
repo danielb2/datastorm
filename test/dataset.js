@@ -64,14 +64,12 @@ describe("Dataset", function() {
         done();
     });
 
-
     it("should do raw sql", function (done) {
 
         dataset.limit(3).raw('SeLeCt id from `items`').order('id', 'asc').sql().should.equal("SeLeCt id from `items` ORDER BY `id` LIMIT 3");
         dataset.raw('SeLeCt id from `items`').raw('LIMIT 4').sql().should.equal("SeLeCt id from `items` LIMIT 4");
         done();
     });
-
 
     it("should limit", function (done) {
 
