@@ -20,7 +20,6 @@ var DB = new DataStorm.mysql({
 });
 
 var List = DataStorm.model('list', DB);
-List.one_to_many('items');
 
 List.one_to_many('generic_items');
 
@@ -48,6 +47,8 @@ var Item = DataStorm.model('item', DB);
 
 var GenericItem = DataStorm.model('GenericItem', DB);
 
+List.one_to_many(Item);
+
 describe("Model", function() {
 
     var db = null;
@@ -60,7 +61,9 @@ describe("Model", function() {
 
     it("should get the correct model name for table name", function (done) {
 
-        List.associations.one_to_many[1].name.should.equal('GenericItem');
+        List.associations.one_to_many[0].name.should.equal('GenericItem');
+        List.associations.one_to_many[1].name.should.equal('Tag');
+        List.associations.one_to_many[2].name.should.equal('Item');
         done();
     });
 
