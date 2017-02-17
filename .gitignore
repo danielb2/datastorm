@@ -1,4 +1,5 @@
 node_modules
 tags
 coverage.html
+console.log
 npm-debug.log

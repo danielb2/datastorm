@@ -1,122 +1,110 @@
-var Code = require('code');
-var DataStorm = require('../lib');
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
+'use strict';
 
-var describe = lab.describe;
-var it = lab.it;
-var before = lab.before;
-var beforeEach = lab.beforeEach;
-var after = lab.after;
-var expect = Code.expect;
+const DataStorm = require('../lib');
+const Lab = require('lab');
+const lab = exports.lab = Lab.script();
 
-require("./_helper");
+const describe = lab.describe;
+const it = lab.it;
+const beforeEach = lab.beforeEach;
 
-describe("Model.Validations", function() {
+require('./_helper');
 
-    var dataset, db;
+describe('Model.Validations', () => {
 
-    db = new DataStorm.mysql({
-        username: 'root',
-        password: '',
-        host: 'localhost',
-        database: 'datastorm_test'
-    });
+    beforeEach((done) => {
 
-    dataset = db.ds('items');
-
-    beforeEach(function(done) {
         return done();
     });
 
-    describe("validate presence", function() {
+    describe('validate presence', () => {
 
-        var Thing = DataStorm.model('thing');
+        const Thing = DataStorm.model('thing');
         Thing.validate('name', DataStorm.validation.presence);
 
-        it("error if not present", function(done) {
-            var thing;
-            thing = new Thing;
-            return thing.validate(function() {
+        it('error if not present', (done) => {
+
+            const thing = new Thing();
+            return thing.validate(() => {
+
                 JSON.stringify(thing.errors).should.equal('{"name":["is not present"]}');
                 return done();
             });
         });
 
-        it("no problem if present", function(done) {
+        it('no problem if present', (done) => {
 
-            var thing;
-            thing = new Thing;
-            thing.name = "naruto";
-            return thing.validate(function() {
+            const thing = new Thing();
+            thing.name = 'naruto';
+            return thing.validate(() => {
 
-                JSON.stringify(thing.errors).should.equal("{}");
+                JSON.stringify(thing.errors).should.equal('{}');
                 return done();
             });
         });
     });
 
-    describe("validate blank", function() {
+    describe('validate blank', () => {
 
-        var Thing = DataStorm.model('thing');
+        const Thing = DataStorm.model('thing');
         Thing.validate('name', DataStorm.validation.blank);
 
-        it("error if blank", function(done) {
+        it('error if blank', (done) => {
 
-            var thing = new Thing;
-            return thing.validate(function() {
+            const thing = new Thing();
+            return thing.validate(() => {
 
                 JSON.stringify(thing.errors).should.equal('{"name":["is blank"]}');
                 return done();
             });
         });
 
-        return it("no problem if not blank", function(done) {
+        return it('no problem if not blank', (done) => {
 
-            var thing = new Thing;
-            thing.name = "naruto";
-            return thing.validate(function() {
+            const thing = new Thing();
+            thing.name = 'naruto';
+            return thing.validate(() => {
 
-                JSON.stringify(thing.errors).should.equal("{}");
+                JSON.stringify(thing.errors).should.equal('{}');
                 return done();
             });
         });
     });
 
-    return describe("validate email", function() {
+    return describe('validate email', () => {
 
-        var Thing = DataStorm.model('thing');
+        const Thing = DataStorm.model('thing');
         Thing.validate('email', DataStorm.validation.email);
 
-        it("error if not present", function(done) {
+        it('error if not present', (done) => {
 
-            var thing = new Thing;
+            const thing = new Thing();
 
-            return thing.validate(function() {
-
-                JSON.stringify(thing.errors).should.equal('{"email":["is not an email"]}');
-                return done();
-            });
-        });
-
-        it("error if not valid", function(done) {
-
-            var thing = new Thing;
-            thing.email = "blah@foo";
-
-            thing.validate(function() {
+            return thing.validate(() => {
 
                 JSON.stringify(thing.errors).should.equal('{"email":["is not an email"]}');
                 return done();
             });
         });
 
-        return it("fine if valid", function(done) {
+        it('error if not valid', (done) => {
 
-            var thing = new Thing;
-            thing.email = "blah@foo.com";
+            const thing = new Thing();
+            thing.email = 'blah@foo';
 
-            return thing.validate(function() {
+            thing.validate(() => {
+
+                JSON.stringify(thing.errors).should.equal('{"email":["is not an email"]}');
+                return done();
+            });
+        });
+
+        return it('fine if valid', (done) => {
+
+            const thing = new Thing();
+            thing.email = 'blah@foo.com';
+
+            return thing.validate(() => {
 
                 JSON.stringify(thing.errors).should.equal('{}');
                 done();
