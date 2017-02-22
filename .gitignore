@@ -3,3 +3,4 @@ tags
 coverage.html
 console.log
 npm-debug.log
+test/datastorm_test.db
