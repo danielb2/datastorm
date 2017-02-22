@@ -1,13 +1,15 @@
 Inspired by [Sequel] for ruby, DataStorm aims to be a database toolkit for
 [node]
 
-* DataStorm currently has adapters for mysql
+* DataStorm currently has adapters for mysql and sqlite3
+* DataStorm follows SemVer. It's not 1.x so it's not ready for production yet. Use at your own risk.
 
 # A short example #
 
     var DataStorm = require('datastorm');
 
     DB = new DataStorm.mysql({username: 'root', password: '', host: 'localhost', database: 'datastorm_test'})
+    // DB = new DataStorm.sqlite('sqlite.db')
 
     items = DB.ds('items') // create a dataset
 
